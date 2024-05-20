@@ -1,0 +1,10 @@
+.vs
+.vs/**
+RayTracing
+RayTracing/**
+x64
+x64/**
+*.sln
+*.vcxproj
+*.filters
+*.user
