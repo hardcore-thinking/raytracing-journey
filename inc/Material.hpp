@@ -20,7 +20,7 @@ class Lambertian : public Material {
 		bool Scatter(Ray const& rIn, HitRecord const& rec, Color& attenuation, Ray& scattered) const override;
 
 	private:
-		Color albedo = {};
+		Color _albedo = {};
 };
 
 class Metal : public Material {
@@ -30,8 +30,8 @@ class Metal : public Material {
 		bool Scatter(Ray const& rIn, HitRecord const& rec, Color& attenuation, Ray& scattered) const override;
 
 	private:
-		Color albedo = {};
-		double fuzz = 0.0;
+		Color _albedo = {};
+		double _fuzz = 0.0;
 };
 
 class Dielectric : public Material {
@@ -42,7 +42,7 @@ class Dielectric : public Material {
 		static double Reflectance(double cosine, double refractionIndex);
 
 	private:
-		double refractionIndex = 0.0;
+		double _refractionIndex = 0.0;
 };
 
 #endif // MAATERIAL_HPP

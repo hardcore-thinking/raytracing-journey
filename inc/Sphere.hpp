@@ -7,15 +7,15 @@
 #include "Material.hpp"
 
 class Sphere : public Hittable {
-public:
-	Sphere(Point3 const& center, double radius, std::shared_ptr<Material> mat);
+	public:
+		Sphere(Point3 const& center, double radius, std::shared_ptr<Material> mat);
 
-	bool Hit(Ray const& r, Interval rayT, HitRecord& rec) const override;
+		bool Hit(Ray const& r, Interval rayT, HitRecord& rec) const override;
 
-private:
-	Point3 center = {};
-	double radius = 0.0;
-	std::shared_ptr<Material> mat = nullptr;
+	private:
+		Point3 _center = {};
+		double _radius = 0.0;
+		std::shared_ptr<Material> _mat = nullptr;
 };
 
 #endif // SPHERE_HPP

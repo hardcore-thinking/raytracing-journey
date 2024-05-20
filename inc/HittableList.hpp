@@ -8,16 +8,16 @@
 
 
 class HittableList : public Hittable {
-public:
-	std::vector<std::shared_ptr<Hittable>> objects = {};
+	public:
+		std::vector<std::shared_ptr<Hittable>> objects = {};
 
-	HittableList();
-	HittableList(std::shared_ptr<Hittable> object);
+		HittableList();
+		HittableList(std::shared_ptr<Hittable> object);
 
-	void clear();
-	void add(std::shared_ptr<Hittable> object);
+		void clear();
+		void add(std::shared_ptr<Hittable> object);
 
-	bool Hit(Ray const& r, Interval rayT, HitRecord& rec) const override;
+		bool Hit(Ray const& r, Interval rayT, HitRecord& rec) const override;
 };
 
 #endif // HITTABLE_LIST_HPP

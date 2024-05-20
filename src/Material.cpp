@@ -4,7 +4,7 @@ bool Material::Scatter(Ray const& rIn, HitRecord const& rec, Color& attenuation,
 	return false;
 }
 
-Lambertian::Lambertian(Color const& albedo) : albedo(albedo) {}
+Lambertian::Lambertian(Color const& albedo) : _albedo(albedo) {}
 
 bool Lambertian::Scatter(Ray const& rIn, HitRecord const& rec, Color& attenuation, Ray& scattered) const {
 	auto scatterDirection = rec.normal + RandomUnitVector();
@@ -14,25 +14,25 @@ bool Lambertian::Scatter(Ray const& rIn, HitRecord const& rec, Color& attenuatio
 	}
 
 	scattered = Ray(rec.p, scatterDirection);
-	attenuation = albedo;
+	attenuation = _albedo;
 	return true;
 }
 
-Metal::Metal(Color const& albedo, double fuzz) : albedo(albedo), fuzz(fuzz < 1.0 ? fuzz : 1.0) {}
+Metal::Metal(Color const& albedo, double fuzz) : _albedo(albedo), _fuzz(fuzz < 1.0 ? fuzz : 1.0) {}
 
 bool Metal::Scatter(Ray const& rIn, HitRecord const& rec, Color& attenuation, Ray& scattered) const {
 	Vec3 reflected = Reflect(rIn.Direction(), rec.normal);
-	reflected = UnitVector(reflected) + (fuzz * RandomUnitVector());
+	reflected = UnitVector(reflected) + (_fuzz * RandomUnitVector());
 	scattered = Ray(rec.p, reflected);
-	attenuation = albedo;
+	attenuation = _albedo;
 	return (Dot(scattered.Direction(), rec.normal) > 0);
 }
 
-Dielectric::Dielectric(double refractionIndex) : refractionIndex(refractionIndex) {}
+Dielectric::Dielectric(double refractionIndex) : _refractionIndex(refractionIndex) {}
 
 bool Dielectric::Scatter(Ray const& rIn, HitRecord const& rec, Color& attenuation, Ray& scattered) const {
 	attenuation = Color(1.0, 1.0, 1.0);
-	double ri = rec.frontFace ? (1.0 / refractionIndex) : refractionIndex;
+	double ri = rec.frontFace ? (1.0 / _refractionIndex) : _refractionIndex;
 
 	Vec3 unitDirection = UnitVector(rIn.Direction());
 	double cosTheta = std::fmin(Dot(-unitDirection, rec.normal), 1.0);

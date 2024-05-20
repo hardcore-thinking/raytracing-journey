@@ -29,9 +29,9 @@ void Camera::Render(Hittable const& world) {
 
 	std::clog << "File opened or created successfully." << std::endl;
 
-	imageFile << "P3\n" << imageWidth << ' ' << imageHeight << "\n255\n";
+	imageFile << "P3\n" << imageWidth << ' ' << _imageHeight << "\n255\n";
 
-	size_t numberOfPixels = static_cast<size_t>(imageWidth * imageHeight);
+	size_t numberOfPixels = static_cast<size_t>(imageWidth * _imageHeight);
 
 	std::clog << "Creating image vector..." << std::endl;
 	std::vector<Color> image(numberOfPixels);
@@ -42,15 +42,15 @@ void Camera::Render(Hittable const& world) {
 #if RT_COMPUTING == RT_COMPUTE_USING_SINGLETHREADING || not defined RT_COMPUTING
 	const auto startComputing = std::chrono::steady_clock::now();
 	std::stringstream colorStream;
-	for (int i = 0; i < imageHeight; i++) {
-		std::clog << "\rScanlines remaining: " << (imageHeight - i) << "     ";
+	for (int i = 0; i < _imageHeight; i++) {
+		std::clog << "\rScanlines remaining: " << (_imageHeight - i) << "     ";
 		for (int j = 0; j < imageWidth; j++) {
 			Color pixelColor(0, 0, 0);
 			for (int sample = 0; sample < samplesPerPixel; sample++) {
 				Ray r = GetRay(j, i);
 				pixelColor += RayColor(r, maxDepth, world);
 			}
-			WriteColor(colorStream, pixelSamplesScale * pixelColor);
+			WriteColor(colorStream, _pixelSamplesScale * pixelColor);
 
 			colorStream >> pixelColor.e[0] >> pixelColor.e[1] >> pixelColor.e[2];
 
@@ -72,7 +72,7 @@ void Camera::Render(Hittable const& world) {
 
 	size_t pixelsOffset = 0;
 
-	int scanlines = imageHeight;
+	int scanlines = _imageHeight;
 	std::mutex scanlinesMutex;
 	for (size_t i = 0; i < numberOfThreads; i++) {
 		
@@ -110,7 +110,7 @@ void Camera::Render(Hittable const& world) {
 						Ray r = GetRay(currentColumn, currentLine);
 						pixelColor += RayColor(r, maxDepth, world);
 					}
-					WriteColor(colorStream, pixelSamplesScale * pixelColor);
+					WriteColor(colorStream, _pixelSamplesScale * pixelColor);
 
 					colorStream >> pixelColor.e[0] >> pixelColor.e[1] >> pixelColor.e[2];
 
@@ -146,7 +146,7 @@ void Camera::Render(Hittable const& world) {
 
 	size_t pixelsOffset = 0;
 
-	int scanlines = imageHeight;
+	int scanlines = _imageHeight;
 	std::mutex scanlinesMutex;
 	for (size_t i = 0; i < numberOfTasks; i++) {
 		threadPool.enqueueTask(
@@ -162,6 +162,7 @@ void Camera::Render(Hittable const& world) {
 
 					if (j != 0 && currentColumn == 0) {
 						{
+							// lock to update scanlines counter
 							std::unique_lock<std::mutex> lock(scanlinesMutex);
 							--scanlines;
 							
@@ -183,7 +184,7 @@ void Camera::Render(Hittable const& world) {
 						Ray r = GetRay(currentColumn, currentLine);
 						pixelColor += RayColor(r, maxDepth, world);
 					}
-					WriteColor(colorStream, pixelSamplesScale * pixelColor);
+					WriteColor(colorStream, _pixelSamplesScale * pixelColor);
 
 					colorStream >> pixelColor.e[0] >> pixelColor.e[1] >> pixelColor.e[2];
 
@@ -224,40 +225,40 @@ void Camera::Render(Hittable const& world) {
 
 void Camera::Initialize() {
 	// Calculate the image height, and ensure that it's at least 1.
-	imageHeight = static_cast<int>(imageWidth / aspectRatio);
-	imageHeight = (imageHeight < 1) ? 1 : imageHeight;
+	_imageHeight = static_cast<int>(imageWidth / aspectRatio);
+	_imageHeight = (_imageHeight < 1) ? 1 : _imageHeight;
 
-	pixelSamplesScale = 1.0 / samplesPerPixel;
+	_pixelSamplesScale = 1.0 / samplesPerPixel;
 
-	center = lookFrom;
+	_center = lookFrom;
 
 	// Camera
 	// auto focalLength = (lookFrom -  lookAt).Length();
 	auto theta = DegreesToRadians(vfov);
 	auto h = std::tan(theta / 2);
 	auto viewportHeight = 2 * h * focusDist;
-	auto viewportWidth = viewportHeight * (static_cast<double>(imageWidth) / imageHeight);
+	auto viewportWidth = viewportHeight * (static_cast<double>(imageWidth) / _imageHeight);
 	
-	w = UnitVector(lookFrom - lookAt);
-	u = UnitVector(Cross(vUp, w));
-	v = Cross(w, u);
+	_w = UnitVector(lookFrom - lookAt);
+	_u = UnitVector(Cross(vUp, _w));
+	_v = Cross(_w, _u);
 
 	// Calculate the vectors across the horizontal and down the vertical viewport edges.
-	auto viewportU = viewportWidth * u;
-	auto viewportV = viewportHeight * (-v);
+	auto viewportU = viewportWidth * _u;
+	auto viewportV = viewportHeight * (-_v);
 
 	// Calculate the horizontal and vertical delta vector from pixel to pixel
-	pixelDeltaU = viewportU / imageWidth;
-	pixelDeltaV = viewportV / imageHeight;
+	_pixelDeltaU = viewportU / imageWidth;
+	_pixelDeltaV = viewportV / _imageHeight;
 
 	// Calculate the location of the upper left pixel
-	auto viewportUpperLeft = center - (focusDist * w) - viewportU / 2 - viewportV / 2;
-	pixel00Loc = viewportUpperLeft + 0.5 * (pixelDeltaU + pixelDeltaV);
+	auto viewportUpperLeft = _center - (focusDist * _w) - viewportU / 2 - viewportV / 2;
+	_pixel00Loc = viewportUpperLeft + 0.5 * (_pixelDeltaU + _pixelDeltaV);
 
 	// Calculate the camera defocus disk basis vectors
 	auto defocusRadius = focusDist * std::tan(DegreesToRadians(defocusAngle / 2));
-	defocusDiskU = u * defocusRadius;
-	defocusDiskV = v * defocusRadius;
+	_defocusDiskU = _u * defocusRadius;
+	_defocusDiskV = _v * defocusRadius;
 }
 
 Ray Camera::GetRay(int i, int j) const {
@@ -265,9 +266,9 @@ Ray Camera::GetRay(int i, int j) const {
 	// sample point around the pixel location i, j
 
 	auto offset = SampleSquare();
-	auto pixelSample = pixel00Loc + ((i + offset.X()) * pixelDeltaU) + ((j + offset.Y()) * pixelDeltaV);
+	auto pixelSample = _pixel00Loc + ((i + offset.X()) * _pixelDeltaU) + ((j + offset.Y()) * _pixelDeltaV);
 
-	auto rayOrigin = (defocusAngle <= 0) ? center : DefocusDiskSample();
+	auto rayOrigin = (defocusAngle <= 0) ? _center : DefocusDiskSample();
 	auto rayDirection = pixelSample - rayOrigin;
 
 	return Ray(rayOrigin, rayDirection);
@@ -280,7 +281,7 @@ Vec3 Camera::SampleSquare() const {
 Point3 Camera::DefocusDiskSample() const {
 	// Returns a random point in the camera defocus disk
 	auto p = RandomInUnitDisk();
-	return center + (p[0] * defocusDiskU) + (p[1] * defocusDiskV);
+	return _center + (p[0] * _defocusDiskU) + (p[1] * _defocusDiskV);
 }
 
 Color Camera::RayColor(Ray const& r, int depth, Hittable const& world) const {

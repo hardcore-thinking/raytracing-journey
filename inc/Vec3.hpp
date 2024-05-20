@@ -7,28 +7,28 @@
 #include "Utils.hpp"
 
 class Vec3 {
-public:
-	double e[3] = { 0.0, 0.0, 0.0 };
+	public:
+		double e[3] = { 0.0, 0.0, 0.0 };
 
-	Vec3();
-	Vec3(double e0, double e1, double e2);
+		Vec3();
+		Vec3(double e0, double e1, double e2);
 
-	double X() const;
-	double Y() const;
-	double Z() const;
+		double X() const;
+		double Y() const;
+		double Z() const;
 
-	Vec3 operator-() const;
-	double operator[](int i) const;
-	double& operator[](int i);
-	Vec3 operator+=(Vec3 const& v);
-	Vec3 operator*=(double t);
-	Vec3& operator/=(double t);
+		Vec3 operator-() const;
+		double operator[](int i) const;
+		double& operator[](int i);
+		Vec3 operator+=(Vec3 const& v);
+		Vec3 operator*=(double t);
+		Vec3& operator/=(double t);
 
-	double Length() const;
-	double LengthSquared() const;
-	static Vec3 Random();
-	static Vec3 Random(double min, double max);
-	bool NearZero() const;
+		double Length() const;
+		double LengthSquared() const;
+		static Vec3 Random();
+		static Vec3 Random(double min, double max);
+		bool NearZero() const;
 };
 
 // Point3 is just an alias for Vec3, but useful for geometric clarity in the code.
