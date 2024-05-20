@@ -79,7 +79,6 @@ void Camera::Render(Hittable const& world) {
 		threads[i] = std::thread(
 			[&](size_t currentThread, size_t offset, size_t excess) {
 				std::stringstream colorStream;
-				std::stringstream log;
 
 				size_t const currentFirstPixel = currentThread * (numberOfPixelsPerThread + numberOfMissingPixels) + pixelsOffset;
 				size_t const nextFirstPixel    = (currentThread + 1) * (numberOfPixelsPerThread + numberOfMissingPixels) + pixelsOffset;
@@ -93,7 +92,15 @@ void Camera::Render(Hittable const& world) {
 							std::unique_lock<std::mutex> lock(scanlinesMutex);
 							--scanlines;
 
-							log << "\rThread " << i << "\tScanlines remaining: " << scanlines << "                  ";
+							std::stringstream log;
+
+							log << "\rScanlines remaining: " << scanlines;
+
+							const int fill = log.str().size() - lastLogLength;
+							lastLogLength = static_cast<int>(log.str().size());
+
+							log << std::string(fill < 0 ? -fill : 0, ' ');
+
 							std::clog << log.str();
 						}
 					}
@@ -132,10 +139,10 @@ void Camera::Render(Hittable const& world) {
 	std::vector<std::promise<void>> promises;
 	promises.resize(numberOfTasks);
 
-	size_t numberOfPixelsPerThread = numberOfPixels / numberOfTasks;
+	size_t numberOfPixelsPerTask = numberOfPixels / numberOfTasks;
 	size_t numberOfMissingPixels = numberOfPixels % numberOfTasks;
 
-	std::clog << numberOfPixelsPerThread << " " << numberOfMissingPixels << std::endl;
+	std::clog << numberOfPixelsPerTask << " " << numberOfMissingPixels << std::endl;
 
 	size_t pixelsOffset = 0;
 
@@ -146,8 +153,8 @@ void Camera::Render(Hittable const& world) {
 			[&, i]() {
 				std::stringstream colorStream;
 
-				size_t const currentFirstPixel = i * (numberOfPixelsPerThread + numberOfMissingPixels) + pixelsOffset;
-				size_t const nextFirstPixel = (i + 1) * (numberOfPixelsPerThread + numberOfMissingPixels) + pixelsOffset;
+				size_t const currentFirstPixel = i * (numberOfPixelsPerTask + numberOfMissingPixels) + pixelsOffset;
+				size_t const nextFirstPixel = (i + 1) * (numberOfPixelsPerTask + numberOfMissingPixels) + pixelsOffset;
 
 				for (size_t j = currentFirstPixel; j < nextFirstPixel; j++) {
 					int const currentLine = j / imageWidth;
@@ -189,7 +196,7 @@ void Camera::Render(Hittable const& world) {
 			}
 		);
 
-		if (pixelsOffset == 0) pixelsOffset = numberOfPixelsPerThread - (numberOfPixelsPerThread - numberOfMissingPixels);
+		if (pixelsOffset == 0) pixelsOffset = numberOfPixelsPerTask - (numberOfPixelsPerTask - numberOfMissingPixels);
 		numberOfMissingPixels = 0;
 	}
 
