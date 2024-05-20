@@ -270,8 +270,9 @@ Ray Camera::GetRay(int i, int j) const {
 
 	auto rayOrigin = (defocusAngle <= 0) ? _center : DefocusDiskSample();
 	auto rayDirection = pixelSample - rayOrigin;
+	auto rayTime = RandomDouble();
 
-	return Ray(rayOrigin, rayDirection);
+	return Ray(rayOrigin, rayDirection, rayTime);
 }
 
 Vec3 Camera::SampleSquare() const {
