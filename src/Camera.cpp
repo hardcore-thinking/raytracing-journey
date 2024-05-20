@@ -134,7 +134,7 @@ void Camera::Render(Hittable const& world) {
 	const size_t numberOfThreads = 32;
 	ThreadPool threadPool(numberOfThreads);
 
-	constexpr size_t numberOfTasks = 500;
+	constexpr size_t numberOfTasks = 400;
 
 	std::vector<std::promise<void>> promises;
 	promises.resize(numberOfTasks);

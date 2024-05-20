@@ -11,7 +11,7 @@ Sphere::Sphere(Point3 const& center1, Point3 const& center2, double radius, std:
 bool Sphere::Hit(Ray const& r, Interval rayT, HitRecord& rec) const {
 	Point3 center = _isMoving ? SphereCenter(r.Time()) : _center1;
 
-	Vec3 oc = _center1 - r.Origin();
+	Vec3 oc = center - r.Origin();
 
 	auto a = r.Direction().LengthSquared();
 	auto h = Dot(r.Direction(), oc);

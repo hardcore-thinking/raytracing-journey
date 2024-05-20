@@ -71,14 +71,15 @@ int main() {
 			auto chooseMat = RandomDouble();
 			Point3 center(a + 0.9 * RandomDouble(), 0.2, b + 0.9 * RandomDouble());
 
-			if ((center - Point3(4, 0.2, 9)).Length() > 0.9) {
+			if ((center - Point3(4, 0.2, 0)).Length() > 0.9) {
 				std::shared_ptr<Material> sphereMaterial;
 
 				if (chooseMat < 0.8) {
 					// diffuse
 					auto albedo = Color::Random() * Color::Random();
 					sphereMaterial = std::make_shared<Lambertian>(albedo);
-					world.add(std::make_shared<Sphere>(center, 0.2, sphereMaterial));
+					auto center2 = center + Vec3(0, RandomDouble(0, 0.5), 0);
+					world.add(std::make_shared<Sphere>(center, center2, 0.2, sphereMaterial));
 				}
 
 				else if (chooseMat < 0.95) {
@@ -110,9 +111,9 @@ int main() {
 	Camera cam;
 
 	cam.aspectRatio     = 16.0 / 9.0;
-	cam.imageWidth      = 8192;
-	cam.samplesPerPixel = 16;
-	cam.maxDepth        = 16;
+	cam.imageWidth      = 400;
+	cam.samplesPerPixel = 100;
+	cam.maxDepth        = 50;
 
 	cam.vfov     = 20;
 	cam.lookFrom = Point3(13, 2, 3);
