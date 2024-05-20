@@ -8,14 +8,22 @@
 
 class Sphere : public Hittable {
 	public:
+		// Stationary Sphere
 		Sphere(Point3 const& center, double radius, std::shared_ptr<Material> mat);
+
+		// Moving Sphere
+		Sphere(Point3 const& center1, Point3 const& center2, double radius, std::shared_ptr<Material> mat);
 
 		bool Hit(Ray const& r, Interval rayT, HitRecord& rec) const override;
 
 	private:
-		Point3 _center = {};
+		Point3 _center1 = {};
 		double _radius = 0.0;
 		std::shared_ptr<Material> _mat = nullptr;
+		bool _isMoving = false;
+		Vec3 _centerVec = {};
+
+		Point3 SphereCenter(double time) const;
 };
 
 #endif // SPHERE_HPP

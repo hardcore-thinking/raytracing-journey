@@ -1,9 +1,17 @@
 #include "Sphere.hpp"
 
-Sphere::Sphere(Point3 const& center, double radius, std::shared_ptr<Material> mat) : _center(center), _radius(std::fmax(0, radius)), _mat(mat) {}
+Sphere::Sphere(Point3 const& center, double radius, std::shared_ptr<Material> mat)
+	: _center1(center), _radius(std::fmax(0, radius)), _mat(mat), _isMoving(false) {}
+
+Sphere::Sphere(Point3 const& center1, Point3 const& center2, double radius, std::shared_ptr<Material> mat) 
+	: _center1(center1), _radius(std::fmax(0, radius)), _mat(mat), _isMoving(true) {
+	_centerVec = center2 - center1;
+}
 
 bool Sphere::Hit(Ray const& r, Interval rayT, HitRecord& rec) const {
-	Vec3 oc = _center - r.Origin();
+	Point3 center = _isMoving ? SphereCenter(r.Time()) : _center1;
+
+	Vec3 oc = _center1 - r.Origin();
 
 	auto a = r.Direction().LengthSquared();
 	auto h = Dot(r.Direction(), oc);
@@ -27,9 +35,15 @@ bool Sphere::Hit(Ray const& r, Interval rayT, HitRecord& rec) const {
 
 	rec.t = root;
 	rec.p = r.At(rec.t);
-	Vec3 outwardNormal = (rec.p - _center) / _radius;
+	Vec3 outwardNormal = (rec.p - _center1) / _radius;
 	rec.SetFaceNormal(r, outwardNormal);
 	rec.mat = _mat;
 
 	return true;
+}
+
+Point3 Sphere::SphereCenter(double time) const {
+	// Linear interpolate from center1 to center2 according to time, where t=0 yields
+	// center1, and t=1 yields center2
+	return _center1 + time * _centerVec;
 }
