@@ -20,7 +20,7 @@
 void Camera::Render(Hittable const& world) {
 	Initialize();
 
-	std::ofstream imageFile("C:/Users/ajvp/Pictures/Generated raytracer images/image.ppm", std::ios::beg);
+	std::ofstream imageFile("./image.ppm", std::ios::beg);
 
 	if (!imageFile.is_open()) {
 		std::cerr << "Unable to open or create the output image file." << std::endl;
@@ -36,6 +36,8 @@ void Camera::Render(Hittable const& world) {
 	std::clog << "Creating image vector..." << std::endl;
 	std::vector<Color> image(numberOfPixels);
 	std::clog << "Image vector created" << std::endl;
+
+	int lastLogLength = 0;
 
 #if RT_COMPUTING == RT_COMPUTE_USING_SINGLETHREADING || not defined RT_COMPUTING
 	const auto startComputing = std::chrono::steady_clock::now();
@@ -122,10 +124,10 @@ void Camera::Render(Hittable const& world) {
 
 #elif RT_COMPUTING == RT_COMPUTE_USING_THREADPOOL
 	//const size_t numberOfThreads = std::thread::hardware_concurrency();
-	const size_t numberOfThreads = 4096;
+	const size_t numberOfThreads = 32;
 	ThreadPool threadPool(numberOfThreads);
 
-	constexpr size_t numberOfTasks = 200;
+	constexpr size_t numberOfTasks = 500;
 
 	std::vector<std::promise<void>> promises;
 	promises.resize(numberOfTasks);
@@ -143,7 +145,6 @@ void Camera::Render(Hittable const& world) {
 		threadPool.enqueueTask(
 			[&, i]() {
 				std::stringstream colorStream;
-				std::stringstream log;
 
 				size_t const currentFirstPixel = i * (numberOfPixelsPerThread + numberOfMissingPixels) + pixelsOffset;
 				size_t const nextFirstPixel = (i + 1) * (numberOfPixelsPerThread + numberOfMissingPixels) + pixelsOffset;
@@ -156,8 +157,16 @@ void Camera::Render(Hittable const& world) {
 						{
 							std::unique_lock<std::mutex> lock(scanlinesMutex);
 							--scanlines;
+							
+							std::stringstream log;
 
-							log << "Task " << i << "\nScanlines remaining: " << scanlines << "\033[A\r";
+							log << "\rScanlines remaining: " << scanlines;
+
+							const int fill = log.str().size() - lastLogLength;
+							lastLogLength = static_cast<int>(log.str().size());
+
+							log << std::string(fill < 0 ? -fill : 0, ' ');
+
 							std::clog << log.str();
 						}
 					}
