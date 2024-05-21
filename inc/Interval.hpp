@@ -10,6 +10,7 @@ class Interval {
 
 		Interval();
 		Interval(double min, double max);
+		Interval(Interval const& a, Interval const& b);
 
 		double Size() const;
 		bool Contains(double x) const;

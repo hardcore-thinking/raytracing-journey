@@ -4,6 +4,12 @@ Interval::Interval() : min(-infinity), max(+infinity) {}
 
 Interval::Interval(double min, double max) : min(min), max(max) {}
 
+Interval::Interval(Interval const& a, Interval const& b) {
+	// Create the interval tightly enclosing the two input intervals
+	min = a.min <= b.min ? a.min : b.min;
+	max = a.max >= b.max ? a.max : b.max;
+}
+
 double Interval::Size() const {
 	return max - min;
 }

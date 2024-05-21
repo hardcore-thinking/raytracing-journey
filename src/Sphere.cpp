@@ -1,10 +1,18 @@
 #include "Sphere.hpp"
 
 Sphere::Sphere(Point3 const& center, double radius, std::shared_ptr<Material> mat)
-	: _center1(center), _radius(std::fmax(0, radius)), _mat(mat), _isMoving(false) {}
+	: _center1(center), _radius(std::fmax(0, radius)), _mat(mat), _isMoving(false) {
+	auto rVec = Vec3(radius, radius, radius);
+	_bBox = AABB(_center1 - rVec, _center1 + rVec);
+}
 
 Sphere::Sphere(Point3 const& center1, Point3 const& center2, double radius, std::shared_ptr<Material> mat) 
 	: _center1(center1), _radius(std::fmax(0, radius)), _mat(mat), _isMoving(true) {
+	auto rVec = Vec3(radius, radius, radius);
+	AABB box1(_center1 - rVec, _center1 + rVec);
+	AABB box2(center2 - rVec, center2 + rVec);
+	_bBox = AABB(box1, box2);
+
 	_centerVec = center2 - center1;
 }
 
@@ -40,6 +48,10 @@ bool Sphere::Hit(Ray const& r, Interval rayT, HitRecord& rec) const {
 	rec.mat = _mat;
 
 	return true;
+}
+
+AABB Sphere::BoundingBox() const {
+	return _bBox;
 }
 
 Point3 Sphere::SphereCenter(double time) const {

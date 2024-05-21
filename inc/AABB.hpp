@@ -14,6 +14,7 @@ class AABB {
 		AABB();
 		AABB(Interval const& x, Interval const& y, Interval const& z);
 		AABB(Point3 const& a, Point3 const& b);
+		AABB(AABB const& box0, AABB const& box1);
 
 		Interval const& AxisInterval(int n) const;
 		bool Hit(Ray const& r, Interval rayT) const;

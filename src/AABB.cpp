@@ -13,6 +13,12 @@ AABB::AABB(Point3 const& a, Point3 const& b) {
 	z = (a[2] <= b[2]) ? Interval(a[2], b[2]) : Interval(b[2], a[2]);
 }
 
+AABB::AABB(AABB const& box0, AABB const& box1) {
+	x = Interval(box0.x, box1.x);
+	y = Interval(box0.y, box1.y);
+	z = Interval(box0.z, box1.z);
+}
+
 Interval const& AABB::AxisInterval(int n) const {
 	if (n == 1) {
 		return y;
