@@ -114,9 +114,9 @@ int main() {
 	Camera cam;
 
 	cam.aspectRatio     = 16.0 / 9.0;
-	cam.imageWidth      = 1920;
-	cam.samplesPerPixel = 32;
-	cam.maxDepth        = 32;
+	cam.imageWidth      = 2048;
+	cam.samplesPerPixel = 128;
+	cam.maxDepth        = 128;
 
 	cam.vfov     = 20;
 	cam.lookFrom = Point3(13, 2, 3);

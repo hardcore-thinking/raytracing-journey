@@ -69,3 +69,18 @@ bool AABB::Hit(Ray const& r, Interval rayT) const {
 		return true;
 	}
 }
+
+int AABB::LongestAxis() const {
+	// Returns the index of the longest axis of the bounding box
+
+	if (x.Size() > y.Size()) {
+		return x.Size() > z.Size() ? 0 : 2;
+	}
+
+	else {
+		return y.Size() > z.Size() ? 1 : 2;
+	}
+}
+
+AABB const AABB::empty = AABB(Interval::empty, Interval::empty, Interval::empty);
+AABB const AABB::universe = AABB(Interval::universe, Interval::universe, Interval::universe);

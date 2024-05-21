@@ -18,6 +18,11 @@ public:
 
 	Interval const& AxisInterval(int n) const;
 	bool Hit(Ray const& r, Interval rayT) const;
+
+	int LongestAxis() const;
+
+	static AABB const empty;
+	static AABB const universe;
 };
 
 #endif // AABB_HPP

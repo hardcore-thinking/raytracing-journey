@@ -7,7 +7,13 @@ BVHNode::BVHNode(HittableList list) : BVHNode(list.objects, 0, list.objects.size
 }
 
 BVHNode::BVHNode(std::vector<std::shared_ptr<Hittable>>& objects, size_t start, size_t end) {
-	int axis = RandomInt(0, 2);
+	// Build the bounding box of the span of source objects.
+	_bBox = AABB::empty;
+	for (size_t objectIndex = start; objectIndex < end; objectIndex++) {
+		_bBox = AABB(_bBox, objects[objectIndex]->BoundingBox());
+	}
+
+	int axis = _bBox.LongestAxis();
 
 	auto comparator = (axis == 0) ? BoxXCompare
 		            : (axis == 1) ? BoxYCompare
@@ -31,12 +37,10 @@ BVHNode::BVHNode(std::vector<std::shared_ptr<Hittable>>& objects, size_t start, 
 		_left = std::make_shared<BVHNode>(objects, start, mid);
 		_right = std::make_shared<BVHNode>(objects, mid, end);
 	}
-
-	_bBox = AABB(_left->BoundingBox(), _right->BoundingBox());
 }
 
 bool BVHNode::Hit(Ray const& r, Interval rayT, HitRecord& rec) const {
-	if (_bBox.Hit(r, rayT)) {
+	if (!_bBox.Hit(r, rayT)) {
 		return false;
 	}
 
