@@ -15,6 +15,7 @@ class Interval {
 		bool Contains(double x) const;
 		bool Surrounds(double x) const;
 		double Clamp(double x) const;
+		Interval Expand(double delta) const;
 
 		static Interval const empty;
 		static Interval const universe;

@@ -28,5 +28,10 @@ double Interval::Clamp(double x) const {
 	return x;
 }
 
+Interval Interval::Expand(double delta) const {
+	auto padding = delta / 2;
+	return Interval(min - padding, max + padding);
+}
+
 Interval const Interval::empty = Interval(+infinity, -infinity);
 Interval const Interval::universe = Interval(-infinity, +infinity);
