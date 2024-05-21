@@ -33,7 +33,7 @@ Interval const& AABB::AxisInterval(int n) const {
 
 bool AABB::Hit(Ray const& r, Interval rayT) const {
 	Point3 const& rayOrig = r.Origin();
-	Vec3 const& rayDir    = r.Direction();
+	Vec3 const& rayDir = r.Direction();
 
 	for (int axis = 0; axis < 3; axis++) {
 		Interval const& ax = AxisInterval(axis);

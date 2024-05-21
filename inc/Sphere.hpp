@@ -5,6 +5,7 @@
 
 #include "Hittable.hpp"
 #include "Material.hpp"
+#include "AABB.hpp"
 
 class Sphere : public Hittable {
 	public:
