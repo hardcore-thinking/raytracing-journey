@@ -12,5 +12,6 @@ double const pi = 3.1415926535897932385;
 double DegreesToRadians(double degrees);
 double RandomDouble();
 double RandomDouble(double min, double max);
+int RandomInt(int min, int max);
 
 #endif // RTWEEKEND_HPP

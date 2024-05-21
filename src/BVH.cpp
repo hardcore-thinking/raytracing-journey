@@ -1,11 +1,38 @@
 #include "BVH.hpp"
 
+#include "Utils.hpp"
+
 BVHNode::BVHNode(HittableList list) : BVHNode(list.objects, 0, list.objects.size()) {
 
 }
 
 BVHNode::BVHNode(std::vector<std::shared_ptr<Hittable>>& objects, size_t start, size_t end) {
+	int axis = RandomInt(0, 2);
 
+	auto comparator = (axis == 0) ? BoxXCompare
+		            : (axis == 1) ? BoxYCompare
+		                          : BoxZCompare;
+
+	size_t objectSpan = end - start;
+
+	if (objectSpan == 1) {
+		_left = _right = objects[start];
+	}
+
+	else if (objectSpan == 2) {
+		_left = objects[start];
+		_right = objects[start + 1];
+	}
+
+	else {
+		std::sort(objects.begin() + start, objects.begin() + end, comparator);
+
+		auto mid = start + objectSpan / 2;
+		_left = std::make_shared<BVHNode>(objects, start, mid);
+		_right = std::make_shared<BVHNode>(objects, mid, end);
+	}
+
+	_bBox = AABB(_left->BoundingBox(), _right->BoundingBox());
 }
 
 bool BVHNode::Hit(Ray const& r, Interval rayT, HitRecord& rec) const {
