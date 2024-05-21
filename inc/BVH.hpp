@@ -19,6 +19,11 @@ class BVHNode : public Hittable {
 		std::shared_ptr<Hittable> _left = nullptr;
 		std::shared_ptr<Hittable> _right = nullptr;
 		AABB _bBox = {};
+
+		static bool BoxCompare(std::shared_ptr<Hittable> const a, std::shared_ptr<Hittable> const b, int axisIndex);
+		static bool BoxXCompare(std::shared_ptr<Hittable> const a, std::shared_ptr<Hittable> const b);
+		static bool BoxYCompare(std::shared_ptr<Hittable> const a, std::shared_ptr<Hittable> const b);
+		static bool BoxZCompare(std::shared_ptr<Hittable> const a, std::shared_ptr<Hittable> const b);
 };
 
 #endif // BVH_HPP

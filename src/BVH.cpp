@@ -49,3 +49,22 @@ bool BVHNode::Hit(Ray const& r, Interval rayT, HitRecord& rec) const {
 AABB BVHNode::BoundingBox() const {
 	return _bBox;
 }
+
+bool BVHNode::BoxCompare(std::shared_ptr<Hittable> const a, std::shared_ptr<Hittable> const b, int axisIndex) {
+	auto aAxisInterval = a->BoundingBox().AxisInterval(axisIndex);
+	auto bAxisInterval = b->BoundingBox().AxisInterval(axisIndex);
+	
+	return aAxisInterval.min < bAxisInterval.min;
+}
+
+bool BVHNode::BoxXCompare(std::shared_ptr<Hittable> const a, std::shared_ptr<Hittable> const b) {
+	return BoxCompare(a, b, 0);
+}
+
+bool BVHNode::BoxYCompare(std::shared_ptr<Hittable> const a, std::shared_ptr<Hittable> const b) {
+	return BoxCompare(a, b, 1);
+}
+
+bool BVHNode::BoxZCompare(std::shared_ptr<Hittable> const a, std::shared_ptr<Hittable> const b) {
+	return BoxCompare(a, b, 2);
+}
