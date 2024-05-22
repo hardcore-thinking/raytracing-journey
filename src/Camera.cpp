@@ -240,7 +240,7 @@ void Camera::Initialize() {
 
 	// Camera
 	// auto focalLength = (lookFrom -  lookAt).Length();
-	auto theta = DegreesToRadians(vfov);
+	auto theta = DegreesToRadians(vFOV);
 	auto h = std::tan(theta / 2);
 	auto viewportHeight = 2 * h * focusDist;
 	auto viewportWidth = viewportHeight * (static_cast<double>(imageWidth) / _imageHeight);

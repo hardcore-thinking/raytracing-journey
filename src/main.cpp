@@ -11,12 +11,12 @@
 #include "BVH.hpp"
 #include "Texture.hpp"
 
-int main() {
+void BouncingSperes() {
 	// World
 	HittableList world;
 
-	auto checker = std::make_shared<CheckerTexture>(0.32, Color(0.2, 0.3, 0.1), Color(0.9, 0.9, 0.9));
-	world.Add(std::make_shared<Sphere>(Point3(0, -1000, 0), 1000, std::make_shared<Lambertian>(checker)));
+	auto groundMaterial = std::make_shared<Lambertian>(Color(0.5, 0.5, 0.5));
+	world.Add(std::make_shared<Sphere>(Point3(0, -1000, 0), 1000, groundMaterial));
 
 	for (int a = -11; a < 11; a++) {
 		for (int b = -11; b < 11; b++) {
@@ -69,7 +69,7 @@ int main() {
 	cam.samplesPerPixel = 100;
 	cam.maxDepth        = 50;
 
-	cam.vfov     = 60;
+	cam.vFOV     = 60;
 	cam.lookFrom = Point3(13, 2, 3);
 	cam.lookAt   = Point3(0, 0, 0);
 	cam.vUp      = Vec3(0, 1, 0);
@@ -80,6 +80,43 @@ int main() {
 	cam.Render(world);
 
 	std::clog << '\a';
+}
 
-	return EXIT_SUCCESS;
+void CheckeredSpheres() {
+	HittableList world;
+
+	auto checker = std::make_shared<CheckerTexture>(0.32, Color(0.2, 0.3, 0.1), Color(0.9, 0.9, 0.9));
+
+	world.Add(std::make_shared<Sphere>(Point3(0, -10, 0), 10, std::make_shared<Lambertian>(checker)));
+	world.Add(std::make_shared<Sphere>(Point3(0,  10, 0), 10, std::make_shared<Lambertian>(checker)));
+
+	Camera cam;
+
+	cam.aspectRatio     = 16.0 / 9.0;
+	cam.imageWidth      = 400;
+	cam.samplesPerPixel = 100;
+	cam.maxDepth        = 50;
+
+	cam.vFOV     = 20;
+	cam.lookFrom = Point3(13, 2, 3);
+	cam.lookAt   = Point3(0, 0, 0);
+	cam.vUp      = Vec3(0, 1, 0);
+
+	cam.defocusAngle = 0;
+	
+	cam.Render(world);
+}
+
+int main() {
+	constexpr int select = 2;
+
+	switch (select) {
+		case 1: 
+			BouncingSperes();
+			break;
+	
+		case 2:
+			CheckeredSpheres();
+			break;
+	}
 }
