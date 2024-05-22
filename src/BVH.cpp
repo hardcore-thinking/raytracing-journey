@@ -55,8 +55,8 @@ AABB BVHNode::BoundingBox() const {
 }
 
 bool BVHNode::BoxCompare(std::shared_ptr<Hittable> const a, std::shared_ptr<Hittable> const b, int axisIndex) {
-	auto aAxisInterval = a->BoundingBox().AxisInterval(axisIndex);
-	auto bAxisInterval = b->BoundingBox().AxisInterval(axisIndex);
+	auto& aAxisInterval = a->BoundingBox().AxisInterval(axisIndex);
+	auto& bAxisInterval = b->BoundingBox().AxisInterval(axisIndex);
 	
 	return aAxisInterval.min < bAxisInterval.min;
 }

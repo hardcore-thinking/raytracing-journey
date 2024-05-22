@@ -28,7 +28,7 @@ void Camera::Render(Hittable const& world) {
 
 	int lastLogLength = 0;
 
-	std::clog << " > Rendering " << imageWidth << "x" << _imageHeight << " image with " << samplesPerPixel << " spp and " << maxDepth << " bpr ";
+	std::clog << " > Rendering " << imageWidth << "x" << _imageHeight << " image with " << samplesPerPixel << " spp and " << maxDepth << " bpr";
 
 #if RT_COMPUTING == RT_COMPUTE_USING_SINGLETHREADING || not defined RT_COMPUTING
 	std::clog << " in main thread..." << std::endl;
@@ -130,7 +130,7 @@ void Camera::Render(Hittable const& world) {
 
 	std::clog << " in a thread pool using " << numberOfThreads << " threads..." << std::endl;
 
-	size_t numberOfTasks = 3 * numberOfThreads;
+	size_t numberOfTasks = 5 * numberOfThreads;
 
 	std::vector<std::promise<void>> promises;
 	promises.resize(numberOfTasks);
@@ -138,7 +138,7 @@ void Camera::Render(Hittable const& world) {
 	size_t numberOfPixelsPerTask = numberOfPixels / numberOfTasks;
 	size_t numberOfMissingPixels = numberOfPixels % numberOfTasks;
 
-	std::clog << numberOfPixelsPerTask << " " << numberOfMissingPixels << std::endl;
+	std::clog << " > " << numberOfPixelsPerTask << " pixels per task and " << numberOfMissingPixels << " missings pixels (these will be computed in the first task)" << std::endl;
 
 	size_t pixelsOffset = 0;
 
@@ -153,8 +153,8 @@ void Camera::Render(Hittable const& world) {
 				size_t const nextFirstPixel = (i + 1) * (numberOfPixelsPerTask + numberOfMissingPixels) + pixelsOffset;
 
 				for (size_t j = currentFirstPixel; j < nextFirstPixel; j++) {
-					int const currentLine = j / imageWidth;
-					int const currentColumn = j % imageWidth;
+					int const currentLine = static_cast<int>(j) / imageWidth;
+					int const currentColumn = static_cast<int>(j) % imageWidth;
 
 					if (j != 0 && currentColumn == 0) {
 						{
@@ -166,7 +166,7 @@ void Camera::Render(Hittable const& world) {
 
 							log << "\r > Scanlines remaining: " << scanlines;
 
-							const int fill = log.str().size() - lastLogLength;
+							const int fill = static_cast<int>(log.str().size()) - lastLogLength;
 							lastLogLength = static_cast<int>(log.str().size());
 
 							log << std::string(fill < 0 ? -fill : 0, ' ');

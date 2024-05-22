@@ -114,16 +114,16 @@ int main() {
 	Camera cam;
 
 	cam.aspectRatio     = 16.0 / 9.0;
-	cam.imageWidth      = 2048;
+	cam.imageWidth      = 4096;
 	cam.samplesPerPixel = 128;
 	cam.maxDepth        = 128;
 
-	cam.vfov     = 20;
-	cam.lookFrom = Point3(13, 2, 3);
-	cam.lookAt   = Point3(0, 0, 0);
+	cam.vfov     = 60;
+	cam.lookFrom = Point3(0, 1.5, 0);
+	cam.lookAt   = Point3(-4, 1.5, 0);
 	cam.vUp      = Vec3(0, 1, 0);
 
-	cam.defocusAngle = 0.6;
+	//cam.defocusAngle = 0.6;
 	cam.focusDist    = 10.0;
 
 	cam.Render(world);

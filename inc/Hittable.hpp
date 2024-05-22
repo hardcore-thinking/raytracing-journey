@@ -16,6 +16,8 @@ class HitRecord {
 		Vec3 normal = {};
 		std::shared_ptr<Material> mat = nullptr;
 		double t = 0.0;
+		double u = 0.0;
+		double v = 0.0;
 		bool frontFace = false;
 
 		void SetFaceNormal(Ray const& r, Vec3 const& outwardNormal);
