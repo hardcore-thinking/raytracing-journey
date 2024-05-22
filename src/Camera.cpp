@@ -20,30 +20,23 @@
 void Camera::Render(Hittable const& world) {
 	Initialize();
 
-	std::ofstream imageFile("./image.ppm", std::ios::beg);
-
-	if (!imageFile.is_open()) {
-		std::cerr << "Unable to open or create the output image file." << std::endl;
-		return;
-	}
-
-	std::clog << "File opened or created successfully." << std::endl;
-
-	imageFile << "P3\n" << imageWidth << ' ' << _imageHeight << "\n255\n";
-
 	size_t numberOfPixels = static_cast<size_t>(imageWidth * _imageHeight);
 
-	std::clog << "Creating image vector..." << std::endl;
+	std::clog << " > Creating image vector..." << std::endl;
 	std::vector<Color> image(numberOfPixels);
-	std::clog << "Image vector created" << std::endl;
+	std::clog << " > Image vector created" << std::endl;
 
 	int lastLogLength = 0;
 
+	std::clog << " > Rendering " << imageWidth << "x" << _imageHeight << " image with " << samplesPerPixel << " spp and " << maxDepth << " bpr ";
+
 #if RT_COMPUTING == RT_COMPUTE_USING_SINGLETHREADING || not defined RT_COMPUTING
+	std::clog << " in main thread..." << std::endl;
+
 	const auto startComputing = std::chrono::steady_clock::now();
 	std::stringstream colorStream;
 	for (int i = 0; i < _imageHeight; i++) {
-		std::clog << "\rScanlines remaining: " << (_imageHeight - i) << "     ";
+		std::clog << "\r > Scanlines remaining: " << (_imageHeight - i) << "     ";
 		for (int j = 0; j < imageWidth; j++) {
 			Color pixelColor(0, 0, 0);
 			for (int sample = 0; sample < samplesPerPixel; sample++) {
@@ -61,9 +54,10 @@ void Camera::Render(Hittable const& world) {
 	}
 
 #elif RT_COMPUTING == RT_COMPUTE_USING_MULTITHREADING
-	// WITH MULTITHREADING
 	size_t numberOfThreads = std::thread::hardware_concurrency();
 	std::vector<std::thread> threads(numberOfThreads);
+
+	std::clog << " in " << numberOfThreads << " threads..." << std::endl;
 
 	size_t numberOfPixelsPerThread = numberOfPixels / numberOfThreads;
 	size_t numberOfMissingPixels = numberOfPixels % numberOfThreads;
@@ -94,7 +88,7 @@ void Camera::Render(Hittable const& world) {
 
 							std::stringstream log;
 
-							log << "\rScanlines remaining: " << scanlines;
+							log << "\r > Scanlines remaining: " << scanlines;
 
 							const int fill = log.str().size() - lastLogLength;
 							lastLogLength = static_cast<int>(log.str().size());
@@ -130,11 +124,13 @@ void Camera::Render(Hittable const& world) {
 	}
 
 #elif RT_COMPUTING == RT_COMPUTE_USING_THREADPOOL
-	//const size_t numberOfThreads = std::thread::hardware_concurrency();
-	const size_t numberOfThreads = 10;
+	size_t numberOfThreads = std::thread::hardware_concurrency();
+	numberOfThreads = 2 * numberOfThreads + 1;
 	ThreadPool threadPool(numberOfThreads);
 
-	constexpr size_t numberOfTasks = 3 * numberOfThreads;
+	std::clog << " in a thread pool using " << numberOfThreads << " threads..." << std::endl;
+
+	size_t numberOfTasks = 3 * numberOfThreads;
 
 	std::vector<std::promise<void>> promises;
 	promises.resize(numberOfTasks);
@@ -168,7 +164,7 @@ void Camera::Render(Hittable const& world) {
 							
 							std::stringstream log;
 
-							log << "\rScanlines remaining: " << scanlines;
+							log << "\r > Scanlines remaining: " << scanlines;
 
 							const int fill = log.str().size() - lastLogLength;
 							lastLogLength = static_cast<int>(log.str().size());
@@ -208,9 +204,19 @@ void Camera::Render(Hittable const& world) {
 
 #endif
 
-	std::clog << "\rScanlines remaining: 0" << std::endl;
+	std::clog << "\r > Scanlines remaining: 0" << std::endl;
 
-	std::clog << " ¤ Writing results to image file..." << std::endl;
+	std::ofstream imageFile("./image.ppm", std::ios::beg);
+
+	if (!imageFile.is_open()) {
+		std::cerr << "Unable to open or create the output image file." << std::endl;
+		return;
+	}
+
+	std::clog << " > File opened or created successfully." << std::endl;
+	std::clog << " > Writing results to image file..." << std::endl;
+
+	imageFile << "P3\n" << imageWidth << ' ' << _imageHeight << "\n255\n";
 	for (auto const& pixel : image) {
 		imageFile << pixel << std::endl;
 	}
