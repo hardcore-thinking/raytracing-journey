@@ -2,9 +2,11 @@
 #define MATERIAL_HPP
 
 #include <cmath>
+#include <memory>
 
 #include "Hittable.hpp"
 #include "Color.hpp"
+#include "Texture.hpp"
 
 class Material {
 	public:
@@ -16,11 +18,12 @@ class Material {
 class Lambertian : public Material {
 	public:
 		Lambertian(Color const& albedo);
+		Lambertian(std::shared_ptr<Texture> tex);
 
 		bool Scatter(Ray const& rIn, HitRecord const& rec, Color& attenuation, Ray& scattered) const override;
 
 	private:
-		Color _albedo = {};
+		std::shared_ptr<Texture> _tex;
 };
 
 class Metal : public Material {

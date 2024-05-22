@@ -9,63 +9,14 @@
 #include "Camera.hpp"
 #include "Material.hpp"
 #include "BVH.hpp"
-
-/*
-int main() {
-	// World
-	HittableList world;
-
-	auto material_ground = std::make_shared<Lambertian>(Color(0.8, 0.8, 0.0));
-	auto material_center = std::make_shared<Lambertian>(Color(0.1, 0.2, 0.5));
-	auto material_left   = std::make_shared<Dielectric>(1.50);
-	auto material_bubble = std::make_shared<Dielectric>(1.00 / 1.50);
-	auto material_right  = std::make_shared<Metal>(Color(0.8, 0.6, 0.2), 0.7);
-
-	world.add(std::make_shared<Sphere>(Point3( 0.0, -100.5, -1.0), 100.0, material_ground));
-	world.add(std::make_shared<Sphere>(Point3( 0.0,    0.0, -1.2), 0.5,   material_center));
-	world.add(std::make_shared<Sphere>(Point3(-1.0,    0.0, -1.0), 0.5,   material_left));
-	world.add(std::make_shared<Sphere>(Point3(-1.0,    0.0, -1.0), 0.495, material_bubble));
-	world.add(std::make_shared<Sphere>(Point3(-1.0,    0.0, -1.0), 0.49,  material_bubble));
-	world.add(std::make_shared<Sphere>(Point3(-1.0,    0.0, -1.0), 0.485, material_bubble));
-	world.add(std::make_shared<Sphere>(Point3( 1.0,    0.0, -1.0), 0.5,   material_right));
-
-	auto R = std::cos(pi / 4);
-
-	//auto material_left  = std::make_shared<Lambertian>(Color(0, 0, 1));
-	//auto material_right = std::make_shared<Lambertian>(Color(1, 0, 0));
-
-	//world.add(std::make_shared<Sphere>(Point3(-1, 0, -1), R, material_left));
-	//world.add(std::make_shared<Sphere>(Point3( 1, 0, -1), R, material_right));
-
-	Camera cam;
-
-	cam.aspectRatio     = 16.0 / 9.0;
-	cam.imageWidth      = 400;
-	cam.samplesPerPixel = 100;
-	cam.maxDepth        = 50;
-
-	cam.vfov     = 20;
-	cam.lookFrom = Point3(-2, 2, 1);
-	cam.lookAt   = Point3(0, 0, -1);
-	cam.vUp      = Vec3(0, 1, 0);
-
-	cam.defocusAngle = 10.0;
-	cam.focusDist = 3.4;
-
-	cam.Render(world);
-
-	std::clog << '\a';
-
-	return EXIT_SUCCESS;
-}
-*/
+#include "Texture.hpp"
 
 int main() {
 	// World
 	HittableList world;
 
-	auto groundMaterial = std::make_shared<Lambertian>(Color(0.5, 0.5, 0.5));
-	world.Add(std::make_shared<Sphere>(Point3(0, -1000, 0), 1000, groundMaterial));
+	auto checker = std::make_shared<CheckerTexture>(0.32, Color(0.2, 0.3, 0.1), Color(0.9, 0.9, 0.9));
+	world.Add(std::make_shared<Sphere>(Point3(0, -1000, 0), 1000, std::make_shared<Lambertian>(checker)));
 
 	for (int a = -11; a < 11; a++) {
 		for (int b = -11; b < 11; b++) {
@@ -115,12 +66,12 @@ int main() {
 
 	cam.aspectRatio     = 16.0 / 9.0;
 	cam.imageWidth      = 4096;
-	cam.samplesPerPixel = 128;
-	cam.maxDepth        = 128;
+	cam.samplesPerPixel = 100;
+	cam.maxDepth        = 50;
 
 	cam.vfov     = 60;
-	cam.lookFrom = Point3(0, 1.5, 0);
-	cam.lookAt   = Point3(-4, 1.5, 0);
+	cam.lookFrom = Point3(13, 2, 3);
+	cam.lookAt   = Point3(0, 0, 0);
 	cam.vUp      = Vec3(0, 1, 0);
 
 	//cam.defocusAngle = 0.6;

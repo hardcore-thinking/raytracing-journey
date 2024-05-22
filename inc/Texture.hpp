@@ -1,6 +1,8 @@
 #ifndef TEXTURE_HPP
 #define TEXTURE_HPP
 
+#include <memory>
+
 #include "Color.hpp"
 #include "Vec3.hpp"
 
@@ -20,6 +22,19 @@ class SolidColor : public Texture {
 
 	private:
 		Color _albedo = {};
+};
+
+class CheckerTexture : public Texture {
+	public:
+		CheckerTexture(double scale, std::shared_ptr<Texture> even, std::shared_ptr<Texture> odd);
+		CheckerTexture(double scale, Color const& c1, Color const& c2);
+
+		Color Value(double u, double v, Point3 const& p) const override;
+
+	private:
+		double _invScale = 0.0;
+		std::shared_ptr<Texture> _even = nullptr;
+		std::shared_ptr<Texture> _odd  = nullptr;
 };
 	
 #endif // TEXTURE_HPP

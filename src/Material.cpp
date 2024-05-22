@@ -4,7 +4,9 @@ bool Material::Scatter(Ray const& rIn, HitRecord const& rec, Color& attenuation,
 	return false;
 }
 
-Lambertian::Lambertian(Color const& albedo) : _albedo(albedo) {}
+Lambertian::Lambertian(Color const& albedo) : _tex(std::make_shared<SolidColor>(albedo)) {}
+
+Lambertian::Lambertian(std::shared_ptr<Texture> tex) : _tex(tex) {}
 
 bool Lambertian::Scatter(Ray const& rIn, HitRecord const& rec, Color& attenuation, Ray& scattered) const {
 	auto scatterDirection = rec.normal + RandomUnitVector();
@@ -14,7 +16,7 @@ bool Lambertian::Scatter(Ray const& rIn, HitRecord const& rec, Color& attenuatio
 	}
 
 	scattered = Ray(rec.p, scatterDirection, rIn.Time());
-	attenuation = _albedo;
+	attenuation = _tex->Value(rec.u, rec.v, rec.p);
 	return true;
 }
 

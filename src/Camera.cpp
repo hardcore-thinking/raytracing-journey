@@ -226,7 +226,7 @@ void Camera::Render(Hittable const& world) {
 
 	imageFile.close();
 
-	std::clog << " ¤ Done in " << elapsedComputing << "\a" << std::endl;
+	std::clog << " > Done in " << elapsedComputing << "\a" << std::endl;
 }
 
 void Camera::Initialize() {
