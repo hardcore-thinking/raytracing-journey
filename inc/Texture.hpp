@@ -7,6 +7,7 @@
 #include "Color.hpp"
 #include "Vec3.hpp"
 #include "RTWSTBImage.hpp"
+#include "Perlin.hpp"
 
 class Texture {
 	public:
@@ -46,7 +47,17 @@ class ImageTexture : public Texture {
 		Color Value(double u, double v, Point3 const& p) const override;
 
 	private:
-		RTWImage _image;
+		RTWImage _image = {};
+};
+
+class NoiseTexture : public Texture {
+	public:
+		NoiseTexture();
+
+		Color Value(double u, double v, Point3 const& p) const override;
+
+	private:
+		Perlin _noise = {};
 };
 	
 #endif // TEXTURE_HPP
