@@ -23,3 +23,24 @@ Color CheckerTexture::Value(double u, double v, Point3 const& p) const {
 
 	return isEven ? _even->Value(u, v, p) : _odd->Value(u, v, p);
 }
+
+ImageTexture::ImageTexture(char* const filename) : _image(filename) {}
+
+Color ImageTexture::Value(double u, double v, Point3 const& p) const {
+	// If we have no texture data, then return solid cyan as a debugging aid
+	if (_image.Height() <= 0) {
+		return Color(0, 1, 1);
+	}
+
+	// Clamp input texture coordinates to [0, 1] x [0, 1]
+	u = Interval(0, 1).Clamp(u);
+	v = 1.0 - Interval(0, 1).Clamp(v); // Flip v to immage coordinates
+
+	auto i = static_cast<int>(u * _image.Width());
+	auto j = static_cast<int>(v * _image.Height());
+	auto pixel = _image.PixelData(i, j);
+
+	auto colorScale = 1.0 / 255.0;
+	
+	return Color(colorScale * pixel[0], colorScale * pixel[1], colorScale * pixel[2]);
+}

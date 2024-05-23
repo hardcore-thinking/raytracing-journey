@@ -5,6 +5,7 @@
 
 #include "Color.hpp"
 #include "Vec3.hpp"
+#include "RTWSTBImage.hpp"
 
 class Texture {
 	public:
@@ -35,6 +36,16 @@ class CheckerTexture : public Texture {
 		double _invScale = 0.0;
 		std::shared_ptr<Texture> _even = nullptr;
 		std::shared_ptr<Texture> _odd  = nullptr;
+};
+
+class ImageTexture : public Texture {
+	public:
+		ImageTexture(char* const filename);
+
+		Color Value(double u, double v, Point3 const& p) const override;
+
+	private:
+		RTWImage _image = {};
 };
 	
 #endif // TEXTURE_HPP
