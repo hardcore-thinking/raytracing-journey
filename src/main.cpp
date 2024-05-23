@@ -11,7 +11,7 @@
 #include "BVH.hpp"
 #include "Texture.hpp"
 
-void BouncingSperes() {
+void BouncingSperes(Camera& cam) {
 	// World
 	HittableList world;
 
@@ -62,61 +62,49 @@ void BouncingSperes() {
 
 	world = HittableList(std::make_shared<BVHNode>(world));
 
-	Camera cam;
-
-	cam.aspectRatio     = 16.0 / 9.0;
-	cam.imageWidth      = 4096;
-	cam.samplesPerPixel = 100;
-	cam.maxDepth        = 50;
-
-	cam.vFOV     = 60;
-	cam.lookFrom = Point3(13, 2, 3);
-	cam.lookAt   = Point3(0, 0, 0);
-	cam.vUp      = Vec3(0, 1, 0);
-
-	//cam.defocusAngle = 0.6;
-	cam.focusDist    = 10.0;
-
 	cam.Render(world);
 
 	std::clog << '\a';
 }
 
-void CheckeredSpheres() {
+void CheckeredSpheres(Camera& cam) {
 	HittableList world;
 
 	auto checker = std::make_shared<CheckerTexture>(0.32, Color(0.2, 0.3, 0.1), Color(0.9, 0.9, 0.9));
 
 	world.Add(std::make_shared<Sphere>(Point3(0, -10, 0), 10, std::make_shared<Lambertian>(checker)));
 	world.Add(std::make_shared<Sphere>(Point3(0,  10, 0), 10, std::make_shared<Lambertian>(checker)));
-
-	Camera cam;
-
-	cam.aspectRatio     = 16.0 / 9.0;
-	cam.imageWidth      = 400;
-	cam.samplesPerPixel = 100;
-	cam.maxDepth        = 50;
-
-	cam.vFOV     = 20;
-	cam.lookFrom = Point3(13, 2, 3);
-	cam.lookAt   = Point3(0, 0, 0);
-	cam.vUp      = Vec3(0, 1, 0);
-
-	cam.defocusAngle = 0;
 	
 	cam.Render(world);
 }
 
 int main() {
+	Camera cam;
+
+	cam.aspectRatio = 16.0 / 9.0;
+	cam.imageWidth = 400;
+	cam.samplesPerPixel = 4;
+	cam.maxDepth = 4;
+
+	cam.vFOV = 20;
+	cam.lookFrom = Point3(13, 2, 3);
+	cam.lookAt = Point3(0, 0, 0);
+	cam.vUp = Vec3(0, 1, 0);
+
+	cam.defocusAngle = 0;
+	
+	//cam.defocusAngle = 0.6;
+	//cam.focusDist = 10.0;
+
 	constexpr int select = 2;
 
 	switch (select) {
 		case 1: 
-			BouncingSperes();
+			BouncingSperes(cam);
 			break;
 	
 		case 2:
-			CheckeredSpheres();
+			CheckeredSpheres(cam);
 			break;
 	}
 }

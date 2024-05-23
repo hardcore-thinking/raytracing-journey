@@ -1,17 +1,22 @@
 #include "Camera.hpp"
 
+#define RT_OUTPUT_IMAGE_BINARY 0
+#define RT_OUTPUT_IMAGE_ASCII  1
+
+#define RT_OUTPUT_IMAGE RT_OUTPUT_IMAGE_ASCII
+
 #define RT_COMPUTE_USING_SINGLETHREADING 0
 #define RT_COMPUTE_USING_MULTITHREADING  1
 #define RT_COMPUTE_USING_THREADPOOL      2
 
-#define RT_COMPUTING RT_COMPUTE_USING_THREADPOOL
+#define RT_COMPUTE RT_COMPUTE_USING_THREADPOOL
 
-#if defined RT_COMPUTING
+#if defined RT_COMPUTE
 
-#if RT_COMPUTING == RT_COMPUTE_USING_THREADPOOL
+#if RT_COMPUTE == RT_COMPUTE_USING_THREADPOOL
 #include "ThreadPool.hpp"
 
-#elif RT_COMPUTING == RT_COMPUTE_USING_MULTITHREADING
+#elif RT_COMPUTE == RT_COMPUTE_USING_MULTITHREADING
 #include <mutex>
 #endif
 
@@ -30,7 +35,7 @@ void Camera::Render(Hittable const& world) {
 
 	std::clog << " > Rendering " << imageWidth << "x" << _imageHeight << " image with " << samplesPerPixel << " spp and " << maxDepth << " bpr";
 
-#if RT_COMPUTING == RT_COMPUTE_USING_SINGLETHREADING || not defined RT_COMPUTING
+#if RT_COMPUTE == RT_COMPUTE_USING_SINGLETHREADING || not defined RT_COMPUTE
 	std::clog << " in main thread..." << std::endl;
 
 	const auto startComputing = std::chrono::steady_clock::now();
@@ -53,7 +58,7 @@ void Camera::Render(Hittable const& world) {
 		}
 	}
 
-#elif RT_COMPUTING == RT_COMPUTE_USING_MULTITHREADING
+#elif RT_COMPUTE == RT_COMPUTE_USING_MULTITHREADING
 	size_t numberOfThreads = std::thread::hardware_concurrency();
 	std::vector<std::thread> threads(numberOfThreads);
 
@@ -123,7 +128,7 @@ void Camera::Render(Hittable const& world) {
 		thread.join();
 	}
 
-#elif RT_COMPUTING == RT_COMPUTE_USING_THREADPOOL
+#elif RT_COMPUTE == RT_COMPUTE_USING_THREADPOOL
 	size_t numberOfThreads = std::thread::hardware_concurrency();
 	numberOfThreads = 2 * numberOfThreads + 1;
 	ThreadPool threadPool(numberOfThreads);
@@ -206,7 +211,15 @@ void Camera::Render(Hittable const& world) {
 
 	std::clog << "\r > Scanlines remaining: 0" << std::endl;
 
+#if RT_OUTPUT_IMAGE == RT_OUTPUT_IMAGE_BINARY || not defined RT_OUTPUT_IMAGE
+	std::cout << " > Creating a binary PPM file (P6)..." << std::endl;
 	std::ofstream imageFile("./image.ppm", std::ios::beg);
+	
+#else
+	std::cout << " > Creating a plain ASCII PPM file (P3)..." << std::endl;
+	std::ofstream imageFile("./image.ppm", std::ios::beg | std::ios::binary);
+
+#endif
 
 	if (!imageFile.is_open()) {
 		std::cerr << "Unable to open or create the output image file." << std::endl;
@@ -216,10 +229,19 @@ void Camera::Render(Hittable const& world) {
 	std::clog << " > File opened or created successfully." << std::endl;
 	std::clog << " > Writing results to image file..." << std::endl;
 
+#if RT_OUTPUT_IMAGE == RT_OUTPUT_IMAGE_BINARY || not defined RT_OUTPUT_IMAGE
+	imageFile << "P6\n" << imageWidth << ' ' << _imageHeight << "\n255\n";
+	for (auto const& pixel : image) {
+		imageFile << char(pixel.X()) << char(pixel.Y()) << char(pixel.Z());
+	}
+	
+#else
 	imageFile << "P3\n" << imageWidth << ' ' << _imageHeight << "\n255\n";
 	for (auto const& pixel : image) {
 		imageFile << pixel << std::endl;
 	}
+	
+#endif
 
 	const auto endComputing = std::chrono::steady_clock::now();
 	const std::chrono::duration<double> elapsedComputing = endComputing - startComputing;
