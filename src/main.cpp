@@ -82,11 +82,11 @@ int main() {
 	Camera cam;
 
 	cam.aspectRatio = 16.0 / 9.0;
-	cam.imageWidth = 400;
-	cam.samplesPerPixel = 4;
-	cam.maxDepth = 4;
+	cam.imageWidth = 4096;
+	cam.samplesPerPixel = 256;
+	cam.maxDepth = 256;
 
-	cam.vFOV = 20;
+	cam.vFOV = 30;
 	cam.lookFrom = Point3(13, 2, 3);
 	cam.lookAt = Point3(0, 0, 0);
 	cam.vUp = Vec3(0, 1, 0);
@@ -99,7 +99,7 @@ int main() {
 	constexpr int select = 2;
 
 	switch (select) {
-		case 1: 
+		case 1:
 			BouncingSperes(cam);
 			break;
 	

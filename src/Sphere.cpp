@@ -45,6 +45,7 @@ bool Sphere::Hit(Ray const& r, Interval rayT, HitRecord& rec) const {
 	rec.p = r.At(rec.t);
 	Vec3 outwardNormal = (rec.p - _center1) / _radius;
 	rec.SetFaceNormal(r, outwardNormal);
+	GetSphereUV(outwardNormal, rec.u, rec.v);
 	rec.mat = _mat;
 
 	return true;
@@ -58,4 +59,19 @@ Point3 Sphere::SphereCenter(double time) const {
 	// Linear interpolate from center1 to center2 according to time, where t=0 yields
 	// center1, and t=1 yields center2
 	return _center1 + time * _centerVec;
+}
+
+void Sphere::GetSphereUV(Point3 const& p, double& u, double& v) {
+	// p: a given point on the sphere of radius one, centered at the origin
+	// u: returned value [0, 1] of angle around the Y axis from X = -1
+	// v: returned value [0, 1] of angle from Y = -1 to Y = +1
+	//     <1 0 0> yiels <0.50 0.50>        <-1   0   0> yields <0.00 0.50>
+	//     <0 1 0> yiels <0.50 1.00>        < 0  -1   0> yields <0.50 0.00>
+	//     <0 0 1> yiels <0.25 0.50>        < 0   0  -1> yields <0.75 0.50>
+
+	auto theta = acos(-p.Y());
+	auto phi = atan2(-p.Z(), p.X()) + pi;
+
+	u = phi / (2 * pi);
+	v = theta / pi;
 }

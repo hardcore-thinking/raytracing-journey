@@ -27,6 +27,7 @@ class Sphere : public Hittable {
 		AABB _bBox = {};
 
 		Point3 SphereCenter(double time) const;
+		static void GetSphereUV(Point3 const& p, double& u, double& v);
 };
 
 #endif // SPHERE_HPP
