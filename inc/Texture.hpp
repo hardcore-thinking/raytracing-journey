@@ -1,6 +1,7 @@
 #ifndef TEXTURE_HPP
 #define TEXTURE_HPP
 
+#include <iostream>
 #include <memory>
 
 #include "Color.hpp"
@@ -40,12 +41,12 @@ class CheckerTexture : public Texture {
 
 class ImageTexture : public Texture {
 	public:
-		ImageTexture(char* const filename);
+		ImageTexture(std::string const& filename);
 
 		Color Value(double u, double v, Point3 const& p) const override;
 
 	private:
-		RTWImage _image = {};
+		RTWImage _image;
 };
 	
 #endif // TEXTURE_HPP

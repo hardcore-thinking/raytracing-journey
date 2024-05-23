@@ -24,7 +24,7 @@ Color CheckerTexture::Value(double u, double v, Point3 const& p) const {
 	return isEven ? _even->Value(u, v, p) : _odd->Value(u, v, p);
 }
 
-ImageTexture::ImageTexture(char* const filename) : _image(filename) {}
+ImageTexture::ImageTexture(std::string const& filename) : _image(filename) {}
 
 Color ImageTexture::Value(double u, double v, Point3 const& p) const {
 	// If we have no texture data, then return solid cyan as a debugging aid

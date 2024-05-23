@@ -8,7 +8,7 @@
 #define RT_COMPUTE_USING_THREADPOOL      2
 
 #define RT_COMPUTE      RT_COMPUTE_USING_THREADPOOL
-#define RT_OUTPUT_IMAGE RT_OUTPUT_IMAGE_ASCII
+#define RT_OUTPUT_IMAGE RT_OUTPUT_IMAGE_BINARY
 
 #if defined RT_COMPUTE
 
@@ -212,11 +212,11 @@ void Camera::Render(Hittable const& world) {
 
 #if RT_OUTPUT_IMAGE == RT_OUTPUT_IMAGE_BINARY || not defined RT_OUTPUT_IMAGE
 	std::cout << " > Creating a binary PPM file (P6)..." << std::endl;
-	std::ofstream imageFile("./image.ppm", std::ios::beg);
+	std::ofstream imageFile("./image.ppm", std::ios::beg | std::ios::binary);
 	
 #else
 	std::cout << " > Creating a plain ASCII PPM file (P3)..." << std::endl;
-	std::ofstream imageFile("./image.ppm", std::ios::beg | std::ios::binary);
+	std::ofstream imageFile("./image.ppm", std::ios::beg);
 
 #endif
 
@@ -231,7 +231,9 @@ void Camera::Render(Hittable const& world) {
 #if RT_OUTPUT_IMAGE == RT_OUTPUT_IMAGE_BINARY || not defined RT_OUTPUT_IMAGE
 	imageFile << "P6\n" << imageWidth << ' ' << _imageHeight << "\n255\n";
 	for (auto const& pixel : image) {
-		imageFile << char(pixel.X()) << char(pixel.Y()) << char(pixel.Z());
+		imageFile << static_cast<unsigned char>(pixel.X())
+			      << static_cast<unsigned char>(pixel.Y()) 
+			      << static_cast<unsigned char>(pixel.Z());
 	}
 	
 #else

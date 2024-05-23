@@ -8,7 +8,7 @@
 
 RTWImage::RTWImage() {}
 
-RTWImage::RTWImage(char* const imageFilename) {
+RTWImage::RTWImage(std::string const& imageFilename) {
 	// Loads image data from the specified file. If the RTW_IMAGES environment variable is
 	// defined, looks only in that directory for the image file. If the image was not found,
 	// searches for the specified image file first from the current directory, then in the 
@@ -16,46 +16,45 @@ RTWImage::RTWImage(char* const imageFilename) {
 	// parent, on so on, for six levels up. If the image was not loaded successfully,
 	// width() and height() will return 0.
 
-	auto filename = std::string(imageFilename);
-
-	char* imageDir = new char[ENV_STRING_SIZE];
+	std::string imageDir = "";
+	char* buffer = imageDir.data();
 	size_t envStrSize = ENV_STRING_SIZE;
-	_dupenv_s(&imageDir, &envStrSize, "RTW_IMAGES");
+	_dupenv_s(&buffer, &envStrSize, "RTW_IMAGES");
 
 	// Hunt for the image file in some likely locations
-	if (imageDir && Load(std::string(imageDir) + "/" + imageFilename)) {
+	if (buffer && Load(imageDir + "/" + imageFilename)) {
 		return;
 	}
 	
-	if (Load(filename)) {
+	if (Load(imageFilename)) {
 		return;
 	}
 
-	if (Load("images/" + filename)) {
+	if (Load("images/" + imageFilename)) {
 		return;
 	}
 	
-	if (Load("../images" + filename)) {
+	if (Load("../images" + imageFilename)) {
 		return;
 	}
 
-	if (Load("../../images" + filename)) {
+	if (Load("../../images" + imageFilename)) {
 		return;
 	}
 
-	if (Load("../../../images" + filename)) {
+	if (Load("../../../images" + imageFilename)) {
 		return;
 	}
 
-	if (Load("../../../../images" + filename)) {
+	if (Load("../../../../images" + imageFilename)) {
 		return;
 	}
 
-	if (Load("../../../../../images" + filename)) {
+	if (Load("../../../../../images" + imageFilename)) {
 		return;
 	}
 
-	if (Load("../../../../../../images" + filename)) {
+	if (Load("../../../../../../images" + imageFilename)) {
 		return;
 	}
 
@@ -88,14 +87,14 @@ bool RTWImage::Load(std::string const& filename) {
 }
 
 int RTWImage::Width() const {
-	return _imageWidth;
+	return (_fData == nullptr) ? 0 : _imageWidth;
 }
 
 int RTWImage::Height() const {
-	return _imageHeight;
+	return (_fData == nullptr) ? 0 : _imageHeight;
 }
 
-unsigned char* const RTWImage::PixelData(int x, int y) const {
+const unsigned char* RTWImage::PixelData(int x, int y) const {
 	// Returns the address of the three RGB bytes of the pixel at x,y. If the is no image
 	// data, returns magenta.
 
@@ -142,7 +141,7 @@ void RTWImage::ConvertToBytes() {
 	// data in the '_bData' member.
 
 	int totalBytes = _imageWidth * _imageHeight * _bytesPerPixel;
-	_bData = new unsigned char(totalBytes);
+	_bData = new unsigned char[totalBytes];
 
 	// Iterate through all pixel components, converting from [0.0, 1.0] float values to
 	// unsigned [0, 255] byte values.

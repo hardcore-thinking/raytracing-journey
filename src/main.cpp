@@ -78,16 +78,24 @@ void CheckeredSpheres(Camera& cam) {
 	cam.Render(world);
 }
 
+void Earth(Camera& cam) {
+	auto earthTexture = std::make_shared<ImageTexture>("earthmap.jpg");
+	auto earthSurface = std::make_shared<Lambertian>(earthTexture);
+	auto globe = std::make_shared<Sphere>(Point3(0, 0, 0), 2, earthSurface);
+
+	cam.Render(HittableList(globe));
+}
+
 int main() {
 	Camera cam;
 
 	cam.aspectRatio = 16.0 / 9.0;
-	cam.imageWidth = 4096;
-	cam.samplesPerPixel = 256;
-	cam.maxDepth = 256;
+	cam.imageWidth = 1920;
+	cam.samplesPerPixel = 512;
+	cam.maxDepth = 512;
 
-	cam.vFOV = 30;
-	cam.lookFrom = Point3(13, 2, 3);
+	cam.vFOV = 20;
+	cam.lookFrom = Point3(0, 0, 12);
 	cam.lookAt = Point3(0, 0, 0);
 	cam.vUp = Vec3(0, 1, 0);
 
@@ -96,7 +104,7 @@ int main() {
 	//cam.defocusAngle = 0.6;
 	//cam.focusDist = 10.0;
 
-	constexpr int select = 2;
+	constexpr int select = 3;
 
 	switch (select) {
 		case 1:
@@ -106,5 +114,8 @@ int main() {
 		case 2:
 			CheckeredSpheres(cam);
 			break;
+
+		case 3:
+			Earth(cam);
 	}
 }

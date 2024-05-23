@@ -7,13 +7,13 @@
 class RTWImage {
 	public:
 		RTWImage();
-		RTWImage(char* const imageFilename);
+		RTWImage(std::string const& imageFilename);
 		~RTWImage();
 
 		bool Load(std::string const& filename);
 		int Width() const;
 		int Height() const;
-		unsigned char* const PixelData(int x, int y) const;
+		const unsigned char* PixelData(int x, int y) const;
 	
 	private:
 		int const      _bytesPerPixel     = 3;
