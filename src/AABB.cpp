@@ -2,7 +2,10 @@
 
 AABB::AABB() {}
 
-AABB::AABB(Interval const& x, Interval const& y, Interval const& z) : x(x), y(y), z(z) {}
+AABB::AABB(Interval const& x, Interval const& y, Interval const& z)
+	: x(x), y(y), z(z) {
+	PadToMinimums();
+}
 
 AABB::AABB(Point3 const& a, Point3 const& b) {
 	// Treat the two points a anb b as extrema for the bounding box, so we don't require a
@@ -11,6 +14,8 @@ AABB::AABB(Point3 const& a, Point3 const& b) {
 	x = (a[0] <= b[0]) ? Interval(a[0], b[0]) : Interval(b[0], a[0]);
 	y = (a[1] <= b[1]) ? Interval(a[1], b[1]) : Interval(b[1], a[1]);
 	z = (a[2] <= b[2]) ? Interval(a[2], b[2]) : Interval(b[2], a[2]);
+
+	PadToMinimums();
 }
 
 AABB::AABB(AABB const& box0, AABB const& box1) {
@@ -79,6 +84,24 @@ int AABB::LongestAxis() const {
 
 	else {
 		return y.Size() > z.Size() ? 1 : 2;
+	}
+}
+
+void AABB::PadToMinimums() {
+	// Adjust the AABB so that no side is narrower than some delta, padding if necessary
+
+	double delta = 0.0001;
+	
+	if (x.Size() < delta) {
+		x = x.Expand(delta);
+	}
+
+	if (y.Size() < delta) {
+		y = y.Expand(delta);
+	}
+
+	if (z.Size() < delta) {
+		z = z.Expand(delta);
 	}
 }
 

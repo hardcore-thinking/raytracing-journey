@@ -6,23 +6,26 @@
 #include "Ray.hpp"
 
 class AABB {
-public:
-	Interval x = {};
-	Interval y = {};
-	Interval z = {};
+	public:
+		Interval x = {};
+		Interval y = {};
+		Interval z = {};
 
-	AABB();
-	AABB(Interval const& x, Interval const& y, Interval const& z);
-	AABB(Point3 const& a, Point3 const& b);
-	AABB(AABB const& box0, AABB const& box1);
+		AABB();
+		AABB(Interval const& x, Interval const& y, Interval const& z);
+		AABB(Point3 const& a, Point3 const& b);
+		AABB(AABB const& box0, AABB const& box1);
 
-	Interval const& AxisInterval(int n) const;
-	bool Hit(Ray const& r, Interval rayT) const;
+		Interval const& AxisInterval(int n) const;
+		bool Hit(Ray const& r, Interval rayT) const;
 
-	int LongestAxis() const;
+		int LongestAxis() const;
 
-	static AABB const empty;
-	static AABB const universe;
+		static AABB const empty;
+		static AABB const universe;
+
+	private:
+		void PadToMinimums();
 };
 
 #endif // AABB_HPP
