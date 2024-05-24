@@ -117,26 +117,37 @@ void Quads(Camera& cam) {
 	cam.Render(world);
 }
 
+void SimpleLight(Camera& cam) {
+	HittableList world;
+
+	auto perText = std::make_shared<NoiseTexture>(4);
+	world.Add(std::make_shared<Sphere>(Point3(0, -1000, 0), 1000, std::make_shared<Lambertian>(perText)));
+	world.Add(std::make_shared<Sphere>(Point3(0, 2, 0), 2, std::make_shared<Lambertian>(perText)));
+
+	auto diffLight = std::make_shared<DiffuseLight>(Color(4, 4, 4));
+	world.Add(std::make_shared<Sphere>(Point3(0, 7, 0), 2, diffLight));
+	world.Add(std::make_shared<Quad>(Point3(3, 1, -2), Vec3(2, 0, 0), Vec3(0, 2, 0), diffLight));
+
+	cam.Render(world);
+}
+
 int main() {
 	Camera cam;
 
 	cam.aspectRatio = 16.0 / 9.0;
-	cam.imageWidth = 800;
+	cam.imageWidth = 1920;
 	cam.samplesPerPixel = 400;
 	cam.maxDepth = 200;
 
-	cam.vFOV = 80;
-	cam.lookFrom = Point3(0, 0, 9);
-	cam.lookAt = Point3(0, 0, 0);
+	cam.vFOV = 20;
+	cam.lookFrom = Point3(26, 3, 6);
+	cam.lookAt = Point3(0, 2, 0);
 	cam.vUp = Vec3(0, 1, 0);
-	cam.background = Color(0.70, 0.80, 1.00);
+	cam.background = Color(0, 0, 0);
 
 	cam.defocusAngle = 0;
-	
-	//cam.defocusAngle = 0.6;
-	//cam.focusDist = 10.0;
 
-	int select = 5;
+	int select = 6;
 
 	switch (select) {
 		case 1:
@@ -157,6 +168,10 @@ int main() {
 			
 		case 5:
 			Quads(cam);
+			break;
+
+		case 6:
+			SimpleLight(cam);
 			break;
 
 		default:
