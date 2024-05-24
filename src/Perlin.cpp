@@ -20,13 +20,13 @@ Perlin::Perlin() {
 Perlin::~Perlin() {}
 
 double Perlin::Noise(Point3 const& p) const {
-	auto u = p.X() - floor(p.X());
-	auto v = p.Y() - floor(p.Y());
-	auto w = p.Z() - floor(p.Z());
+	auto u = p.X() - std::floor(p.X());
+	auto v = p.Y() - std::floor(p.Y());
+	auto w = p.Z() - std::floor(p.Z());
 
-	auto i = static_cast<int>(floor(p.X()));
-	auto j = static_cast<int>(floor(p.Y()));
-	auto k = static_cast<int>(floor(p.Z()));
+	auto i = static_cast<int>(std::floor(p.X()));
+	auto j = static_cast<int>(std::floor(p.Y()));
+	auto k = static_cast<int>(std::floor(p.Z()));
 	TrilinearInterpolationCube c;
 	c.fill(Vec3());
 
@@ -43,6 +43,20 @@ double Perlin::Noise(Point3 const& p) const {
 	}
 
 	return PerlinInterpolation(c, u, v, w);
+}
+
+double Perlin::Turbulence(Point3 const& p, int depth) const {
+	auto accum = 0.0;
+	auto tempP = p;
+	auto weight = 1.0;
+
+	for (int i = 0; i < depth; i++) {
+		accum += weight * Noise(tempP);
+		weight *= 0.5;
+		tempP *= 2;
+	}
+
+	return std::fabs(accum);
 }
 
 std::vector<int> Perlin::PerlinGeneratePerm() {

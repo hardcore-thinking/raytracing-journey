@@ -15,6 +15,7 @@ class Perlin {
 		~Perlin();
 
 		double Noise(Point3 const& p) const;
+		double Turbulence(Point3 const& p, int depth) const;
 
 	private:
 		static int const    _pointCount = 256;
