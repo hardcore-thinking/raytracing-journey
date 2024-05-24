@@ -23,6 +23,7 @@ class Quad : public Hittable {
 		Point3 _q = {};
 		Vec3 _u = {};
 		Vec3 _v = {};
+		Vec3 _w = {};
 		std::shared_ptr<Material> _mat = nullptr;
 		AABB _bBox = {};
 		Vec3 _normal = {};

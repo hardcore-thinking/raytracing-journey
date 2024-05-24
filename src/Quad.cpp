@@ -5,6 +5,7 @@ Quad::Quad(Point3 const& q, Vec3 const& u, Vec3 const& v, std::shared_ptr<Materi
 	auto n = Cross(u, v);
 	_normal = UnitVector(n);
 	_d = Dot(_normal, _q);
+	_w = n / Dot(n, n);
 
 	SetBoundingBox();
 }
