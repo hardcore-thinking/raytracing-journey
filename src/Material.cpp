@@ -4,6 +4,10 @@ bool Material::Scatter(Ray const& rIn, HitRecord const& rec, Color& attenuation,
 	return false;
 }
 
+Color Material::Emitted(double u, double v, Point3 const& p) const {
+	return Color(0, 0, 0);
+}
+
 Lambertian::Lambertian(Color const& albedo) : _tex(std::make_shared<SolidColor>(albedo)) {}
 
 Lambertian::Lambertian(std::shared_ptr<Texture> tex) : _tex(tex) {}
@@ -59,4 +63,12 @@ double Dielectric::Reflectance(double cosine, double refractionIndex) {
 	auto r0 = (1 - refractionIndex) / (1 + refractionIndex);
 	r0 = r0 * r0;
 	return r0 + (1 - r0) * std::pow((1 - cosine), 5);
+}
+
+DiffuseLight::DiffuseLight(std::shared_ptr<Texture> tex) : _tex(tex) {}
+
+DiffuseLight::DiffuseLight(Color const& emit) : _tex(std::make_shared<SolidColor>(emit)) {}
+
+Color DiffuseLight::Emitted(double u, double v, Point3 const& p) const {
+	return _tex->Value(u, v, p);
 }

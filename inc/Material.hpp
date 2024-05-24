@@ -13,6 +13,7 @@ class Material {
 		virtual ~Material() = default;
 
 		virtual bool Scatter(Ray const& rIn, HitRecord const& rec, Color& attenuation, Ray& scattered) const;
+		virtual Color Emitted(double u, double v, Point3 const& p) const;
 };
 
 class Lambertian : public Material {
@@ -46,6 +47,17 @@ class Dielectric : public Material {
 
 	private:
 		double _refractionIndex = 0.0;
+};
+
+class DiffuseLight : public Material {
+	public:
+		DiffuseLight(std::shared_ptr<Texture> tex);
+		DiffuseLight(Color const& emit);
+
+		Color Emitted(double u, double v, Point3 const& p) const override;
+		
+	private:
+		std::shared_ptr<Texture> _tex = nullptr;
 };
 
 #endif // MAATERIAL_HPP
