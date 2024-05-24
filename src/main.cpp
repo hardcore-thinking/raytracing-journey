@@ -89,7 +89,7 @@ void Earth(Camera& cam) {
 void PerlinSpheres(Camera& cam) {
 	HittableList world;
 
-	auto pertext = std::make_shared<NoiseTexture>(20);
+	auto pertext = std::make_shared<NoiseTexture>(2);
 	world.Add(std::make_shared<Sphere>(Point3(0, -1000, 0), 1000, std::make_shared<Lambertian>(pertext)));
 	world.Add(std::make_shared<Sphere>(Point3(0, 2, 0), 2, std::make_shared<Lambertian>(pertext)));
 
@@ -106,7 +106,7 @@ int main() {
 
 	cam.vFOV = 20;
 	cam.lookFrom = Point3(13, 2, 3);
-	cam.lookAt = Point3(0, 0, 0);
+	cam.lookAt = Point3(0, 2, 0);
 	cam.vUp = Vec3(0, 1, 0);
 
 	cam.defocusAngle = 0;

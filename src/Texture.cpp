@@ -48,5 +48,5 @@ Color ImageTexture::Value(double u, double v, Point3 const& p) const {
 NoiseTexture::NoiseTexture(double scale) : _scale(scale) {}
 
 Color NoiseTexture::Value(double u, double v, Point3 const& p) const {
-	return Color(1, 1, 1) * _noise.Turbulence(p, 7);
+	return Color(0.5, 0.5, 0.5) * (1 + std::sin(_scale * p.Z() + 10 * _noise.Turbulence(p, 7)));
 }
