@@ -1,10 +1,13 @@
 #ifndef PERLIN_HPP
 #define PERLIN_HPP
 
-#include<vector>
+#include <vector>
+#include <array>
 
 #include "Vec3.hpp"
 #include "Utils.hpp"
+
+using TrilinearInterpolationCube = std::array<double, 8>;
 
 class Perlin {
 	public:
@@ -22,7 +25,7 @@ class Perlin {
 
 		static std::vector<int> PerlinGeneratePerm();
 		static void Permute(std::vector<int>& p, int n);
-		
+		static double TrilinearInterpolation(TrilinearInterpolationCube c, double u, double v, double w);
 };
 
 #endif // PERLIN_HPP
