@@ -65,9 +65,9 @@ bool AABB::Hit(Ray const& r, Interval rayT) const {
 		if (rayT.max <= rayT.min) {
 			return false;
 		}
-
-		return true;
 	}
+
+	return true;
 }
 
 int AABB::LongestAxis() const {
