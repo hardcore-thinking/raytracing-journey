@@ -52,12 +52,13 @@ class ImageTexture : public Texture {
 
 class NoiseTexture : public Texture {
 	public:
-		NoiseTexture();
+		NoiseTexture(double scale);
 
 		Color Value(double u, double v, Point3 const& p) const override;
 
 	private:
 		Perlin _noise = {};
+		double _scale = 0.0;
 };
 	
 #endif // TEXTURE_HPP

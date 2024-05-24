@@ -89,7 +89,7 @@ void Earth(Camera& cam) {
 void PerlinSpheres(Camera& cam) {
 	HittableList world;
 
-	auto pertext = std::make_shared<NoiseTexture>();
+	auto pertext = std::make_shared<NoiseTexture>(20);
 	world.Add(std::make_shared<Sphere>(Point3(0, -1000, 0), 1000, std::make_shared<Lambertian>(pertext)));
 	world.Add(std::make_shared<Sphere>(Point3(0, 2, 0), 2, std::make_shared<Lambertian>(pertext)));
 
@@ -100,7 +100,7 @@ int main() {
 	Camera cam;
 
 	cam.aspectRatio = 16.0 / 9.0;
-	cam.imageWidth = 400;
+	cam.imageWidth = 800;
 	cam.samplesPerPixel = 400;
 	cam.maxDepth = 200;
 
@@ -114,7 +114,7 @@ int main() {
 	//cam.defocusAngle = 0.6;
 	//cam.focusDist = 10.0;
 
-	constexpr int select = 4;
+	int select = 4;
 
 	switch (select) {
 		case 1:
@@ -127,8 +127,13 @@ int main() {
 
 		case 3:
 			Earth(cam);
+			break;
 
 		case 4:
 			PerlinSpheres(cam);
+			break;
+
+		default:
+			break;
 	}
 }
