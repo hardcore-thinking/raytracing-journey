@@ -48,5 +48,5 @@ Color ImageTexture::Value(double u, double v, Point3 const& p) const {
 NoiseTexture::NoiseTexture(double scale) : _scale(scale) {}
 
 Color NoiseTexture::Value(double u, double v, Point3 const& p) const {
-	return Color(1, 1, 1) * _noise.Noise(_scale * p);
+	return Color(1, 1, 1) * 0.5 * (1.0 + _noise.Noise(_scale * p));
 }
