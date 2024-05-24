@@ -35,12 +35,37 @@ bool Quad::Hit(Ray const& r, Interval rayT, HitRecord& rec) const {
 		return false;
 	}
 
+	// Determine where the hit point lies within the planar shape using its plane coordinates
 	auto intersection = r.At(t);
 
+	Vec3 planarHitPointVector = intersection - _q;
+	auto alpha = Dot(_w, Cross(planarHitPointVector, _v));
+	auto beta = Dot(_w, Cross(_u, planarHitPointVector));
+
+	if (!IsInterior(alpha, beta, rec)) {
+		return false;
+	}
+
+	// Ray hits the 2D shape; set the rest of the hit record and return true
 	rec.t = t;
 	rec.p = intersection;
 	rec.mat = _mat;
 	rec.SetFaceNormal(r, _normal);
 
+	return true;
+}
+
+bool Quad::IsInterior(double a, double b, HitRecord& rec) const {
+	Interval unitInterval = Interval(0, 1);
+	// Given the hit point in plane coordinates, return false if it is outside the
+	// primitive, otherwise set the hit record UV coordinates and return true
+
+	if (!unitInterval.Contains(a) || !unitInterval.Contains(b)) {
+		return false;
+	}
+
+	rec.u = a;
+	rec.v = b;
+	
 	return true;
 }

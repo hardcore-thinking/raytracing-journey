@@ -10,6 +10,7 @@
 #include "Material.hpp"
 #include "BVH.hpp"
 #include "Texture.hpp"
+#include "Quad.hpp"
 
 void BouncingSperes(Camera& cam) {
 	// World
@@ -96,6 +97,26 @@ void PerlinSpheres(Camera& cam) {
 	cam.Render(world);
 }
 
+void Quads(Camera& cam) {
+	HittableList world;
+
+	// Materials
+	auto leftRed     = std::make_shared<Lambertian>(Color(1.0, 0.2, 0.2));
+	auto backGreen   = std::make_shared<Lambertian>(Color(0.2, 1.0, 0.2));
+	auto rightBlue   = std::make_shared<Lambertian>(Color(0.2, 0.2, 1.0));
+	auto upperOrange = std::make_shared<Lambertian>(Color(1.0, 0.5, 0.0));
+	auto lowerTeal   = std::make_shared<Lambertian>(Color(0.2, 0.8, 0.8));
+
+	// Quads
+	world.Add(std::make_shared<Quad>(Point3(-3, -2,  5), Vec3(0,  0, -4), Vec3(0,  4,  0), leftRed));
+	world.Add(std::make_shared<Quad>(Point3(-2, -2,  0), Vec3(4,  0,  0), Vec3(0,  4,  0), backGreen));
+	world.Add(std::make_shared<Quad>(Point3( 3, -2,  1), Vec3(0,  0,  4), Vec3(0,  4,  0), rightBlue));
+	world.Add(std::make_shared<Quad>(Point3(-2,  3,  1), Vec3(4,  0,  0), Vec3(0,  0,  4), upperOrange));
+	world.Add(std::make_shared<Quad>(Point3(-2, -3,  5), Vec3(4,  0,  0), Vec3(0,  0, -4), lowerTeal));
+
+	cam.Render(world);
+}
+
 int main() {
 	Camera cam;
 
@@ -104,9 +125,9 @@ int main() {
 	cam.samplesPerPixel = 400;
 	cam.maxDepth = 200;
 
-	cam.vFOV = 20;
-	cam.lookFrom = Point3(13, 2, 3);
-	cam.lookAt = Point3(0, 2, 0);
+	cam.vFOV = 80;
+	cam.lookFrom = Point3(0, 0, 9);
+	cam.lookAt = Point3(0, 0, 0);
 	cam.vUp = Vec3(0, 1, 0);
 
 	cam.defocusAngle = 0;
@@ -114,7 +135,7 @@ int main() {
 	//cam.defocusAngle = 0.6;
 	//cam.focusDist = 10.0;
 
-	int select = 4;
+	int select = 5;
 
 	switch (select) {
 		case 1:
@@ -131,6 +152,10 @@ int main() {
 
 		case 4:
 			PerlinSpheres(cam);
+			break;
+			
+		case 5:
+			Quads(cam);
 			break;
 
 		default:

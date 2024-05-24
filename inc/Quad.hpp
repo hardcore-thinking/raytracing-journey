@@ -19,6 +19,8 @@ class Quad : public Hittable {
 		AABB BoundingBox() const override;
 		bool Hit(Ray const& r, Interval rayT, HitRecord& rec) const override;
 
+		bool IsInterior(double a, double b, HitRecord& rec) const;
+
 	private:
 		Point3 _q = {};
 		Vec3 _u = {};
