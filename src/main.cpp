@@ -131,23 +131,41 @@ void SimpleLight(Camera& cam) {
 	cam.Render(world);
 }
 
+void CornellBox(Camera& cam) {
+	HittableList world;
+
+	auto red   = std::make_shared<Lambertian>(Color(0.65, 0.05, 0.05));
+	auto white = std::make_shared<Lambertian>(Color(0.73, 0.73, 0.73));
+	auto green = std::make_shared<Lambertian>(Color(0.12, 0.45, 0.15));
+	auto light = std::make_shared<DiffuseLight>(Color(15, 15, 15));
+
+	world.Add(std::make_shared<Quad>(Point3(555, 0, 0), Vec3(0, 555, 0), Vec3(0, 0, 555), green));
+	world.Add(std::make_shared<Quad>(Point3(0, 0, 0), Vec3(0, 555, 0), Vec3(0, 0, 555), red));
+	world.Add(std::make_shared<Quad>(Point3(343, 554, 332), Vec3(-130, 0, 0), Vec3(0, 0, -105), light));
+	world.Add(std::make_shared<Quad>(Point3(0, 0, 0), Vec3(555, 0, 0), Vec3(0, 0, 555), white));
+	world.Add(std::make_shared<Quad>(Point3(555, 555, 555), Vec3(-555, 0, 0), Vec3(0, 0, -555), white));
+	world.Add(std::make_shared<Quad>(Point3(0, 0, 555), Vec3(555, 0, 0), Vec3(0, 555, 0), white));
+
+	cam.Render(world);
+}
+
 int main() {
 	Camera cam;
 
-	cam.aspectRatio = 16.0 / 9.0;
-	cam.imageWidth = 1920;
-	cam.samplesPerPixel = 400;
+	cam.aspectRatio = 1.0;
+	cam.imageWidth = 800;
+	cam.samplesPerPixel = 800;
 	cam.maxDepth = 200;
 
-	cam.vFOV = 20;
-	cam.lookFrom = Point3(26, 3, 6);
-	cam.lookAt = Point3(0, 2, 0);
+	cam.vFOV = 40;
+	cam.lookFrom = Point3(278, 278, -800);
+	cam.lookAt = Point3(278, 278, 0);
 	cam.vUp = Vec3(0, 1, 0);
 	cam.background = Color(0, 0, 0);
 
 	cam.defocusAngle = 0;
 
-	int select = 6;
+	int select = 7;
 
 	switch (select) {
 		case 1:
@@ -172,6 +190,10 @@ int main() {
 
 		case 6:
 			SimpleLight(cam);
+			break;
+
+		case 7:
+			CornellBox(cam);
 			break;
 
 		default:
