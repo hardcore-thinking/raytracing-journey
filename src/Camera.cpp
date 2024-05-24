@@ -320,15 +320,21 @@ Color Camera::RayColor(Ray const& r, int depth, Hittable const& world) const {
 	}
 
 	HitRecord rec = {};
-	if (world.Hit(r, Interval(0.001, infinity), rec)) {
-		Ray scattered = {};
-		Color attenuation = {};
-		if (rec.mat->Scatter(r, rec, attenuation, scattered)) {
-			return attenuation * RayColor(scattered, depth - 1, world);
-		}
+	
+	// If the ray hits nothing, return the background color
+	if (!world.Hit(r, Interval(0.001, infinity), rec)) {
+		return background;
 	}
+	
+	Ray scattered = {};
+	Color attenuation = {};
+	Color colorFromEmission = rec.mat->Emitted(rec.u, rec.v, rec.p);
+	
+	if (!rec.mat->Scatter(r, rec, attenuation, scattered)) {
+		return colorFromEmission;
+	}
+	
+	Color colorFromScatter = attenuation * RayColor(scattered, depth - 1, world);
 
-	Vec3 unitDirection = UnitVector(r.Direction());
-	auto a = 0.5 * (unitDirection.Y() + 1.0);
-	return (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color(0.5, 0.7, 0.8);
+	return colorFromEmission + colorFromScatter;
 }

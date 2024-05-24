@@ -129,6 +129,7 @@ int main() {
 	cam.lookFrom = Point3(0, 0, 9);
 	cam.lookAt = Point3(0, 0, 0);
 	cam.vUp = Vec3(0, 1, 0);
+	cam.background = Color(0.70, 0.80, 1.00);
 
 	cam.defocusAngle = 0;
 	
