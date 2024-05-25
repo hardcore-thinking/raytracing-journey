@@ -31,4 +31,17 @@ class Hittable {
 		virtual AABB BoundingBox() const = 0;
 };
 
+class Translate : public Hittable {
+	public:
+		Translate(std::shared_ptr<Hittable> object, Vec3 const& offset);
+
+		bool Hit(Ray const& r, Interval rayT, HitRecord& rec) const override;
+		AABB BoundingBox() const override;
+
+	private:
+		std::shared_ptr<Hittable> _object = nullptr;
+		Vec3 _offset = {};
+		AABB _bBox = {};
+};
+
 #endif // HITTABLE_HPP

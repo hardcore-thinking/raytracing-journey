@@ -41,3 +41,11 @@ Interval Interval::Expand(double delta) const {
 
 Interval const Interval::empty = Interval(+infinity, -infinity);
 Interval const Interval::universe = Interval(-infinity, +infinity);
+
+Interval operator+(Interval const& iVal, double displacement) {
+	return Interval(iVal.min + displacement, iVal.max + displacement);
+}
+
+Interval operator+(double displacement, Interval const& iVal) {
+	return iVal + displacement;
+}

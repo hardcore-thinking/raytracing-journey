@@ -107,3 +107,11 @@ void AABB::PadToMinimums() {
 
 AABB const AABB::empty = AABB(Interval::empty, Interval::empty, Interval::empty);
 AABB const AABB::universe = AABB(Interval::universe, Interval::universe, Interval::universe);
+
+AABB operator+(AABB const& bBox, Vec3 const& offset) {
+	return AABB(bBox.x + offset.X(), bBox.y + offset.Y(), bBox.z + offset.Z());
+}
+
+AABB operator+(Vec3 const& offset, AABB const& bBox) {
+	return bBox + offset;
+}

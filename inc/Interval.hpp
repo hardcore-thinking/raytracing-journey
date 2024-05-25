@@ -20,7 +20,9 @@ class Interval {
 
 		static Interval const empty;
 		static Interval const universe;
-
 };
+
+Interval operator+(Interval const& iVal, double displacement);
+Interval operator+(double displacement, Interval const& iVal);
 
 #endif // INTERVAL_HPP

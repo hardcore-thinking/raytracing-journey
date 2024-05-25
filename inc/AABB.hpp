@@ -28,4 +28,7 @@ class AABB {
 		void PadToMinimums();
 };
 
+AABB operator+(AABB const& bBox, Vec3 const& offset);
+AABB operator+(Vec3 const& offset, AABB const& bBox);
+
 #endif // AABB_HPP
