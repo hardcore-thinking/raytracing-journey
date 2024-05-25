@@ -7,6 +7,7 @@
 #include "Ray.hpp"
 #include "Interval.hpp"
 #include "AABB.hpp"
+#include "Utils.hpp"
 
 class Material;
 
@@ -41,6 +42,20 @@ class Translate : public Hittable {
 	private:
 		std::shared_ptr<Hittable> _object = nullptr;
 		Vec3 _offset = {};
+		AABB _bBox = {};
+};
+
+class RotateY : public Hittable {
+	public:
+		RotateY(std::shared_ptr<Hittable> object, double angle);
+
+		bool Hit(Ray const& r, Interval rayT, HitRecord& rec) const override;
+		AABB BoundingBox() const override;
+
+	private:
+		std::shared_ptr<Hittable> _object = nullptr;
+		double _sinTheta = 0.0;
+		double _cosTheta = 0.0;
 		AABB _bBox = {};
 };
 

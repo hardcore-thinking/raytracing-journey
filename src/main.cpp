@@ -138,21 +138,27 @@ void CornellBox(Camera& cam) {
 	auto white = std::make_shared<Lambertian>(Color(0.73, 0.73, 0.73));
 	auto green = std::make_shared<Lambertian>(Color(0.12, 0.45, 0.15));
 	auto blue  = std::make_shared<Lambertian>(Color(0.09, 0.14, 0.19));
-	auto diel  = std::make_shared<Dielectric>(0.095); // miroir
 	auto light = std::make_shared<DiffuseLight>(Color(15, 15, 15));
-	auto l     = std::make_shared<DiffuseLight>(Color(2, 2, 2));
-	auto perl  = std::make_shared<Lambertian>(std::make_shared<NoiseTexture>(1));
+	// auto diel = std::make_shared<Dielectric>(0.095);
+	// auto perl  = std::make_shared<Lambertian>(std::make_shared<NoiseTexture>(1));
 
-	world.Add(std::make_shared<Quad>(Point3(555,   0,    0), Vec3(   0, 555, 0), Vec3(  0,   0,  555), diel)); // left
-	world.Add(std::make_shared<Quad>(Point3(  0,   0,    0), Vec3(   0, 555, 0), Vec3(  0,   0,  555), diel));   // right
-	world.Add(std::make_shared<Quad>(Point3(343, 554,  332), Vec3(-130,   0, 0), Vec3(  0,   0, -105), light)); // light
-	world.Add(std::make_shared<Quad>(Point3(  0,   0,    0), Vec3( 555,   0, 0), Vec3(  0,   0,  555), diel)); // bottom
-	world.Add(std::make_shared<Quad>(Point3(555, 555,  555), Vec3(-555,   0, 0), Vec3(  0,   0, -555), diel)); // top
-	world.Add(std::make_shared<Quad>(Point3(  0,   0,  555), Vec3( 555,   0, 0), Vec3(  0, 555,    0), diel));  // back
-	world.Add(std::make_shared<Quad>(Point3(  0,   0,    0), Vec3( 555,   0, 0), Vec3(  0, 555,    0), diel, true)); // front
+	world.Add(std::make_shared<Quad>(Point3(555,   0,    0), Vec3(   0, 555, 0), Vec3(  0,   0,  555), green));      // left
+	world.Add(std::make_shared<Quad>(Point3(  0,   0,    0), Vec3(   0, 555, 0), Vec3(  0,   0,  555), red));        // right
+	world.Add(std::make_shared<Quad>(Point3(343, 554,  332), Vec3(-130,   0, 0), Vec3(  0,   0, -105), light));      // light
+	world.Add(std::make_shared<Quad>(Point3(  0,   0,    0), Vec3( 555,   0, 0), Vec3(  0,   0,  555), white));      // bottom
+	world.Add(std::make_shared<Quad>(Point3(555, 555,  555), Vec3(-555,   0, 0), Vec3(  0,   0, -555), white));      // top
+	world.Add(std::make_shared<Quad>(Point3(  0,   0,  555), Vec3( 555,   0, 0), Vec3(  0, 555,    0), white));      // back
+	world.Add(std::make_shared<Quad>(Point3(  0,   0,    0), Vec3( 555,   0, 0), Vec3(  0, 555,    0), blue, true)); // front
 
-	world.Add(Box(Point3(130, 0, 65), Point3(295, 165, 230), perl));
-	world.Add(Box(Point3(265, 0, 295), Point3(430, 330, 460), perl));
+	std::shared_ptr<Hittable> box1 = Box(Point3(0, 0, 0), Point3(165, 330, 165), white);
+	box1 = std::make_shared<RotateY>(box1, 15);
+	box1 = std::make_shared<Translate>(box1, Vec3(265, 0, 295));
+	world.Add(box1);
+
+	std::shared_ptr<Hittable> box2 = Box(Point3(0, 0, 0), Point3(165, 165, 165), white);
+	box2 = std::make_shared<RotateY>(box2, -10);
+	box2 = std::make_shared<Translate>(box2, Vec3(130, 0, 65));
+	world.Add(box2);
 
 	cam.Render(world);
 }
@@ -161,9 +167,9 @@ int main() {
 	Camera cam;
 
 	cam.aspectRatio = 1.0;
-	cam.imageWidth = 1600;
-	cam.samplesPerPixel = 64;
-	cam.maxDepth = 512;
+	cam.imageWidth = 400;
+	cam.samplesPerPixel = 128;
+	cam.maxDepth = 256;
 
 	cam.vFOV = 40;
 	cam.lookFrom = Point3(278, 278, -800);
