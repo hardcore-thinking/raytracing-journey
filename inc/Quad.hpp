@@ -9,6 +9,7 @@
 #include "Interval.hpp"
 #include "Ray.hpp"
 #include "AABB.hpp"
+#include "HittableList.hpp"
 
 class Quad : public Hittable {
 	public:
@@ -31,5 +32,7 @@ class Quad : public Hittable {
 		Vec3 _normal = {};
 		double _d = 0.0;
 };
+
+std::shared_ptr<HittableList> Box(Point3 const& a, Point3 const& b, std::shared_ptr<Material> mat);
 
 #endif // QUAD_HPP

@@ -69,3 +69,26 @@ bool Quad::IsInterior(double a, double b, HitRecord& rec) const {
 	
 	return true;
 }
+
+std::shared_ptr<HittableList> Box(Point3 const& a, Point3 const& b, std::shared_ptr<Material> mat) {
+	// Returns the 3D box (six sides) that contains the two opposite vertices a and b
+
+	auto sides = std::make_shared<HittableList>();
+
+	// Construct the tow opposite vertices with the minimum and maximum coordinates
+	auto min = Point3(std::fmin(a.X(), b.X()), std::fmin(a.Y(), b.Y()), std::fmin(a.Z(), b.Z()));
+	auto max = Point3(std::fmax(a.X(), b.X()), std::fmax(a.Y(), b.Y()), std::fmax(a.Z(), b.Z()));
+
+	auto dx = Vec3(max.X() - min.X(), 0, 0);
+	auto dy = Vec3(0, max.Y() - min.Y(), 0);
+	auto dz = Vec3(0, 0, max.Z() - min.Z());
+
+	sides->Add(std::make_shared<Quad>(Point3(min.X(), min.Y(), max.Z()),  dx,  dy, mat)); // front
+	sides->Add(std::make_shared<Quad>(Point3(max.X(), min.Y(), max.Z()), -dz,  dy, mat)); // right
+	sides->Add(std::make_shared<Quad>(Point3(max.X(), min.Y(), min.Z()), -dx,  dy, mat)); // back
+	sides->Add(std::make_shared<Quad>(Point3(min.X(), min.Y(), min.Z()),  dz,  dy, mat)); // left
+	sides->Add(std::make_shared<Quad>(Point3(min.X(), max.Y(), max.Z()),  dx, -dz, mat)); // top
+	sides->Add(std::make_shared<Quad>(Point3(min.X(), min.Y(), min.Z()),  dx,  dz, mat)); // bottom
+
+	return sides;
+}

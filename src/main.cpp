@@ -146,6 +146,9 @@ void CornellBox(Camera& cam) {
 	world.Add(std::make_shared<Quad>(Point3(555, 555, 555), Vec3(-555, 0, 0), Vec3(0, 0, -555), white));
 	world.Add(std::make_shared<Quad>(Point3(0, 0, 555), Vec3(555, 0, 0), Vec3(0, 555, 0), white));
 
+	world.Add(Box(Point3(130, 0, 65), Point3(295, 165, 230), white));
+	world.Add(Box(Point3(265, 0, 295), Point3(430, 330, 460), white));
+
 	cam.Render(world);
 }
 
@@ -155,7 +158,7 @@ int main() {
 	cam.aspectRatio = 1.0;
 	cam.imageWidth = 800;
 	cam.samplesPerPixel = 800;
-	cam.maxDepth = 200;
+	cam.maxDepth = 800;
 
 	cam.vFOV = 40;
 	cam.lookFrom = Point3(278, 278, -800);
