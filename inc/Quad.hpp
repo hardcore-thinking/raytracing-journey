@@ -13,7 +13,7 @@
 
 class Quad : public Hittable {
 	public:
-		Quad(Point3 const& q, Vec3 const& u, Vec3 const& v, std::shared_ptr<Material> mat);
+		Quad(Point3 const& q, Vec3 const& u, Vec3 const& v, std::shared_ptr<Material> mat, bool transparentBackFace = false);
 
 		virtual void SetBoundingBox();
 
@@ -31,6 +31,7 @@ class Quad : public Hittable {
 		AABB _bBox = {};
 		Vec3 _normal = {};
 		double _d = 0.0;
+		bool _transparentBackFace = false;
 };
 
 std::shared_ptr<HittableList> Box(Point3 const& a, Point3 const& b, std::shared_ptr<Material> mat);

@@ -1,7 +1,7 @@
 #include "Quad.hpp"
 
-Quad::Quad(Point3 const& q, Vec3 const& u, Vec3 const& v, std::shared_ptr<Material> mat)
-	: _q(q), _u(u), _v(v), _mat(mat) {
+Quad::Quad(Point3 const& q, Vec3 const& u, Vec3 const& v, std::shared_ptr<Material> mat, bool transparentBackFace)
+	: _q(q), _u(u), _v(v), _mat(mat), _transparentBackFace(transparentBackFace) {
 	auto n = Cross(u, v);
 	_normal = UnitVector(n);
 	_d = Dot(_normal, _q);
@@ -23,6 +23,11 @@ AABB Quad::BoundingBox() const {
 
 bool Quad::Hit(Ray const& r, Interval rayT, HitRecord& rec) const {
 	auto denom = Dot(_normal, r.Direction());
+
+	// Hit on the back face
+	if (_transparentBackFace && denom > 0) {
+		return false;
+	}
 
 	// No hit if the ray is parallel to the plane
 	if (std::fabs(denom) < 1E-8) {
@@ -51,6 +56,10 @@ bool Quad::Hit(Ray const& r, Interval rayT, HitRecord& rec) const {
 	rec.p = intersection;
 	rec.mat = _mat;
 	rec.SetFaceNormal(r, _normal);
+
+	if (_transparentBackFace && Dot(_normal, r.Direction()) > 0) {
+		return false;
+	}
 
 	return true;
 }

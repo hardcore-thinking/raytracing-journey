@@ -137,17 +137,22 @@ void CornellBox(Camera& cam) {
 	auto red   = std::make_shared<Lambertian>(Color(0.65, 0.05, 0.05));
 	auto white = std::make_shared<Lambertian>(Color(0.73, 0.73, 0.73));
 	auto green = std::make_shared<Lambertian>(Color(0.12, 0.45, 0.15));
+	auto blue  = std::make_shared<Lambertian>(Color(0.09, 0.14, 0.19));
+	auto diel  = std::make_shared<Dielectric>(0.095); // miroir
 	auto light = std::make_shared<DiffuseLight>(Color(15, 15, 15));
+	auto l     = std::make_shared<DiffuseLight>(Color(2, 2, 2));
+	auto perl  = std::make_shared<Lambertian>(std::make_shared<NoiseTexture>(1));
 
-	world.Add(std::make_shared<Quad>(Point3(555, 0, 0), Vec3(0, 555, 0), Vec3(0, 0, 555), green));
-	world.Add(std::make_shared<Quad>(Point3(0, 0, 0), Vec3(0, 555, 0), Vec3(0, 0, 555), red));
-	world.Add(std::make_shared<Quad>(Point3(343, 554, 332), Vec3(-130, 0, 0), Vec3(0, 0, -105), light));
-	world.Add(std::make_shared<Quad>(Point3(0, 0, 0), Vec3(555, 0, 0), Vec3(0, 0, 555), white));
-	world.Add(std::make_shared<Quad>(Point3(555, 555, 555), Vec3(-555, 0, 0), Vec3(0, 0, -555), white));
-	world.Add(std::make_shared<Quad>(Point3(0, 0, 555), Vec3(555, 0, 0), Vec3(0, 555, 0), white));
+	world.Add(std::make_shared<Quad>(Point3(555,   0,    0), Vec3(   0, 555, 0), Vec3(  0,   0,  555), diel)); // left
+	world.Add(std::make_shared<Quad>(Point3(  0,   0,    0), Vec3(   0, 555, 0), Vec3(  0,   0,  555), diel));   // right
+	world.Add(std::make_shared<Quad>(Point3(343, 554,  332), Vec3(-130,   0, 0), Vec3(  0,   0, -105), light)); // light
+	world.Add(std::make_shared<Quad>(Point3(  0,   0,    0), Vec3( 555,   0, 0), Vec3(  0,   0,  555), diel)); // bottom
+	world.Add(std::make_shared<Quad>(Point3(555, 555,  555), Vec3(-555,   0, 0), Vec3(  0,   0, -555), diel)); // top
+	world.Add(std::make_shared<Quad>(Point3(  0,   0,  555), Vec3( 555,   0, 0), Vec3(  0, 555,    0), diel));  // back
+	world.Add(std::make_shared<Quad>(Point3(  0,   0,    0), Vec3( 555,   0, 0), Vec3(  0, 555,    0), diel, true)); // front
 
-	world.Add(Box(Point3(130, 0, 65), Point3(295, 165, 230), white));
-	world.Add(Box(Point3(265, 0, 295), Point3(430, 330, 460), white));
+	world.Add(Box(Point3(130, 0, 65), Point3(295, 165, 230), perl));
+	world.Add(Box(Point3(265, 0, 295), Point3(430, 330, 460), perl));
 
 	cam.Render(world);
 }
@@ -156,9 +161,9 @@ int main() {
 	Camera cam;
 
 	cam.aspectRatio = 1.0;
-	cam.imageWidth = 800;
-	cam.samplesPerPixel = 800;
-	cam.maxDepth = 800;
+	cam.imageWidth = 1600;
+	cam.samplesPerPixel = 64;
+	cam.maxDepth = 512;
 
 	cam.vFOV = 40;
 	cam.lookFrom = Point3(278, 278, -800);
