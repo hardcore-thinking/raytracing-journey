@@ -1,18 +1,23 @@
 #include "Camera.hpp"
 
+#define RT_OUTPUT_IMAGE_BINARY 0
+#define RT_OUTPUT_IMAGE_ASCII  1
+
 #define RT_COMPUTE_USING_SINGLETHREADING 0
 #define RT_COMPUTE_USING_MULTITHREADING  1
 #define RT_COMPUTE_USING_THREADPOOL      2
 
-#define RT_COMPUTING RT_COMPUTE_USING_THREADPOOL
+#define RT_COMPUTE      RT_COMPUTE_USING_THREADPOOL
+#define RT_OUTPUT_IMAGE RT_OUTPUT_IMAGE_BINARY
 
-#if defined RT_COMPUTING
+#if defined RT_COMPUTE
 
-#if RT_COMPUTING == RT_COMPUTE_USING_THREADPOOL
+#if RT_COMPUTE == RT_COMPUTE_USING_THREADPOOL
 #include "ThreadPool.hpp"
 
-#elif RT_COMPUTING == RT_COMPUTE_USING_MULTITHREADING
+#elif RT_COMPUTE == RT_COMPUTE_USING_MULTITHREADING
 #include <mutex>
+
 #endif
 
 #endif
@@ -20,37 +25,30 @@
 void Camera::Render(Hittable const& world) {
 	Initialize();
 
-	std::ofstream imageFile("./image.ppm", std::ios::beg);
+	size_t numberOfPixels = static_cast<size_t>(imageWidth * _imageHeight);
 
-	if (!imageFile.is_open()) {
-		std::cerr << "Unable to open or create the output image file." << std::endl;
-		return;
-	}
-
-	std::clog << "File opened or created successfully." << std::endl;
-
-	imageFile << "P3\n" << imageWidth << ' ' << imageHeight << "\n255\n";
-
-	size_t numberOfPixels = static_cast<size_t>(imageWidth * imageHeight);
-
-	std::clog << "Creating image vector..." << std::endl;
+	std::clog << " > Creating image vector..." << std::endl;
 	std::vector<Color> image(numberOfPixels);
-	std::clog << "Image vector created" << std::endl;
+	std::clog << " > Image vector created" << std::endl;
 
 	int lastLogLength = 0;
 
-#if RT_COMPUTING == RT_COMPUTE_USING_SINGLETHREADING || not defined RT_COMPUTING
+	std::clog << " > Rendering " << imageWidth << "x" << _imageHeight << " image with " << samplesPerPixel << " spp and " << maxDepth << " bpr";
+
+#if RT_COMPUTE == RT_COMPUTE_USING_SINGLETHREADING || not defined RT_COMPUTE
+	std::clog << " in main thread..." << std::endl;
+
 	const auto startComputing = std::chrono::steady_clock::now();
 	std::stringstream colorStream;
-	for (int i = 0; i < imageHeight; i++) {
-		std::clog << "\rScanlines remaining: " << (imageHeight - i) << "     ";
+	for (int i = 0; i < _imageHeight; i++) {
+		std::clog << "\r > Scanlines remaining: " << (_imageHeight - i) << "     ";
 		for (int j = 0; j < imageWidth; j++) {
 			Color pixelColor(0, 0, 0);
 			for (int sample = 0; sample < samplesPerPixel; sample++) {
 				Ray r = GetRay(j, i);
 				pixelColor += RayColor(r, maxDepth, world);
 			}
-			WriteColor(colorStream, pixelSamplesScale * pixelColor);
+			WriteColor(colorStream, _pixelSamplesScale * pixelColor);
 
 			colorStream >> pixelColor.e[0] >> pixelColor.e[1] >> pixelColor.e[2];
 
@@ -60,10 +58,11 @@ void Camera::Render(Hittable const& world) {
 		}
 	}
 
-#elif RT_COMPUTING == RT_COMPUTE_USING_MULTITHREADING
-	// WITH MULTITHREADING
+#elif RT_COMPUTE == RT_COMPUTE_USING_MULTITHREADING
 	size_t numberOfThreads = std::thread::hardware_concurrency();
 	std::vector<std::thread> threads(numberOfThreads);
+
+	std::clog << " in " << numberOfThreads << " threads..." << std::endl;
 
 	size_t numberOfPixelsPerThread = numberOfPixels / numberOfThreads;
 	size_t numberOfMissingPixels = numberOfPixels % numberOfThreads;
@@ -72,14 +71,13 @@ void Camera::Render(Hittable const& world) {
 
 	size_t pixelsOffset = 0;
 
-	int scanlines = imageHeight;
+	int scanlines = _imageHeight;
 	std::mutex scanlinesMutex;
 	for (size_t i = 0; i < numberOfThreads; i++) {
 		
 		threads[i] = std::thread(
 			[&](size_t currentThread, size_t offset, size_t excess) {
 				std::stringstream colorStream;
-				std::stringstream log;
 
 				size_t const currentFirstPixel = currentThread * (numberOfPixelsPerThread + numberOfMissingPixels) + pixelsOffset;
 				size_t const nextFirstPixel    = (currentThread + 1) * (numberOfPixelsPerThread + numberOfMissingPixels) + pixelsOffset;
@@ -93,7 +91,15 @@ void Camera::Render(Hittable const& world) {
 							std::unique_lock<std::mutex> lock(scanlinesMutex);
 							--scanlines;
 
-							log << "\rThread " << i << "\tScanlines remaining: " << scanlines << "                  ";
+							std::stringstream log;
+
+							log << "\r > Scanlines remaining: " << scanlines;
+
+							const int fill = log.str().size() - lastLogLength;
+							lastLogLength = static_cast<int>(log.str().size());
+
+							log << std::string(fill < 0 ? -fill : 0, ' ');
+
 							std::clog << log.str();
 						}
 					}
@@ -103,7 +109,7 @@ void Camera::Render(Hittable const& world) {
 						Ray r = GetRay(currentColumn, currentLine);
 						pixelColor += RayColor(r, maxDepth, world);
 					}
-					WriteColor(colorStream, pixelSamplesScale * pixelColor);
+					WriteColor(colorStream, _pixelSamplesScale * pixelColor);
 
 					colorStream >> pixelColor.e[0] >> pixelColor.e[1] >> pixelColor.e[2];
 
@@ -122,47 +128,50 @@ void Camera::Render(Hittable const& world) {
 		thread.join();
 	}
 
-#elif RT_COMPUTING == RT_COMPUTE_USING_THREADPOOL
-	//const size_t numberOfThreads = std::thread::hardware_concurrency();
-	const size_t numberOfThreads = 32;
+#elif RT_COMPUTE == RT_COMPUTE_USING_THREADPOOL
+	//size_t numberOfThreads = std::thread::hardware_concurrency();
+	size_t numberOfThreads = 10;
 	ThreadPool threadPool(numberOfThreads);
 
-	constexpr size_t numberOfTasks = 500;
+	std::clog << " in a thread pool using " << numberOfThreads << " threads..." << std::endl;
+
+	size_t numberOfTasks = 4 * numberOfThreads;
 
 	std::vector<std::promise<void>> promises;
 	promises.resize(numberOfTasks);
 
-	size_t numberOfPixelsPerThread = numberOfPixels / numberOfTasks;
+	size_t numberOfPixelsPerTask = numberOfPixels / numberOfTasks;
 	size_t numberOfMissingPixels = numberOfPixels % numberOfTasks;
 
-	std::clog << numberOfPixelsPerThread << " " << numberOfMissingPixels << std::endl;
+	std::clog << " > " << numberOfPixelsPerTask << " pixels per task and " << numberOfMissingPixels << " missings pixels (these will be computed in the first task)" << std::endl;
 
 	size_t pixelsOffset = 0;
 
-	int scanlines = imageHeight;
+	int scanlines = _imageHeight;
 	std::mutex scanlinesMutex;
 	for (size_t i = 0; i < numberOfTasks; i++) {
 		threadPool.enqueueTask(
 			[&, i]() {
 				std::stringstream colorStream;
 
-				size_t const currentFirstPixel = i * (numberOfPixelsPerThread + numberOfMissingPixels) + pixelsOffset;
-				size_t const nextFirstPixel = (i + 1) * (numberOfPixelsPerThread + numberOfMissingPixels) + pixelsOffset;
+				size_t const currentFirstPixel = i * (numberOfPixelsPerTask + numberOfMissingPixels) + pixelsOffset;
+				size_t const nextFirstPixel = (i + 1) * (numberOfPixelsPerTask + numberOfMissingPixels) + pixelsOffset;
 
 				for (size_t j = currentFirstPixel; j < nextFirstPixel; j++) {
-					int const currentLine = j / imageWidth;
-					int const currentColumn = j % imageWidth;
+					int const currentLine = static_cast<int>(j) / imageWidth;
+					int const currentColumn = static_cast<int>(j) % imageWidth;
 
 					if (j != 0 && currentColumn == 0) {
 						{
+							// lock to update scanlines counter
 							std::unique_lock<std::mutex> lock(scanlinesMutex);
 							--scanlines;
 							
 							std::stringstream log;
 
-							log << "\rScanlines remaining: " << scanlines;
+							log << "\r > Scanlines remaining: " << scanlines;
 
-							const int fill = log.str().size() - lastLogLength;
+							const int fill = static_cast<int>(log.str().size()) - lastLogLength;
 							lastLogLength = static_cast<int>(log.str().size());
 
 							log << std::string(fill < 0 ? -fill : 0, ' ');
@@ -176,7 +185,7 @@ void Camera::Render(Hittable const& world) {
 						Ray r = GetRay(currentColumn, currentLine);
 						pixelColor += RayColor(r, maxDepth, world);
 					}
-					WriteColor(colorStream, pixelSamplesScale * pixelColor);
+					WriteColor(colorStream, _pixelSamplesScale * pixelColor);
 
 					colorStream >> pixelColor.e[0] >> pixelColor.e[1] >> pixelColor.e[2];
 
@@ -189,7 +198,7 @@ void Camera::Render(Hittable const& world) {
 			}
 		);
 
-		if (pixelsOffset == 0) pixelsOffset = numberOfPixelsPerThread - (numberOfPixelsPerThread - numberOfMissingPixels);
+		if (pixelsOffset == 0) pixelsOffset = numberOfPixelsPerTask - (numberOfPixelsPerTask - numberOfMissingPixels);
 		numberOfMissingPixels = 0;
 	}
 
@@ -200,57 +209,86 @@ void Camera::Render(Hittable const& world) {
 
 #endif
 
-	std::clog << "\rScanlines remaining: 0" << std::endl;
+	std::clog << "\r > Scanlines remaining: 0" << std::endl;
 
-	std::clog << " ¤ Writing results to image file..." << std::endl;
+#if RT_OUTPUT_IMAGE == RT_OUTPUT_IMAGE_BINARY || not defined RT_OUTPUT_IMAGE
+	std::cout << " > Creating a binary PPM file (P6)..." << std::endl;
+	std::ofstream imageFile("./image.ppm", std::ios::beg | std::ios::binary);
+	
+#else
+	std::cout << " > Creating a plain ASCII PPM file (P3)..." << std::endl;
+	std::ofstream imageFile("./image.ppm", std::ios::beg);
+
+#endif
+
+	if (!imageFile.is_open()) {
+		std::cerr << "Unable to open or create the output image file." << std::endl;
+		return;
+	}
+
+	std::clog << " > File opened or created successfully." << std::endl;
+	std::clog << " > Writing results to image file..." << std::endl;
+
+#if RT_OUTPUT_IMAGE == RT_OUTPUT_IMAGE_BINARY || not defined RT_OUTPUT_IMAGE
+	imageFile << "P6\n" << imageWidth << ' ' << _imageHeight << "\n255\n";
+	for (auto const& pixel : image) {
+		imageFile << static_cast<unsigned char>(pixel.X())
+			      << static_cast<unsigned char>(pixel.Y()) 
+			      << static_cast<unsigned char>(pixel.Z());
+	}
+	
+#else
+	imageFile << "P3\n" << imageWidth << ' ' << _imageHeight << "\n255\n";
 	for (auto const& pixel : image) {
 		imageFile << pixel << std::endl;
 	}
+	
+#endif
 
 	const auto endComputing = std::chrono::steady_clock::now();
 	const std::chrono::duration<double> elapsedComputing = endComputing - startComputing;
 
 	imageFile.close();
 
-	std::clog << " ¤ Done in " << elapsedComputing << "\a" << std::endl;
+	std::clog << " > Done in " << elapsedComputing << "\a" << std::endl;
 }
 
 void Camera::Initialize() {
 	// Calculate the image height, and ensure that it's at least 1.
-	imageHeight = static_cast<int>(imageWidth / aspectRatio);
-	imageHeight = (imageHeight < 1) ? 1 : imageHeight;
+	_imageHeight = static_cast<int>(imageWidth / aspectRatio);
+	_imageHeight = (_imageHeight < 1) ? 1 : _imageHeight;
 
-	pixelSamplesScale = 1.0 / samplesPerPixel;
+	_pixelSamplesScale = 1.0 / samplesPerPixel;
 
-	center = lookFrom;
+	_center = lookFrom;
 
 	// Camera
 	// auto focalLength = (lookFrom -  lookAt).Length();
-	auto theta = DegreesToRadians(vfov);
+	auto theta = DegreesToRadians(vFOV);
 	auto h = std::tan(theta / 2);
 	auto viewportHeight = 2 * h * focusDist;
-	auto viewportWidth = viewportHeight * (static_cast<double>(imageWidth) / imageHeight);
+	auto viewportWidth = viewportHeight * (static_cast<double>(imageWidth) / _imageHeight);
 	
-	w = UnitVector(lookFrom - lookAt);
-	u = UnitVector(Cross(vUp, w));
-	v = Cross(w, u);
+	_w = UnitVector(lookFrom - lookAt);
+	_u = UnitVector(Cross(vUp, _w));
+	_v = Cross(_w, _u);
 
 	// Calculate the vectors across the horizontal and down the vertical viewport edges.
-	auto viewportU = viewportWidth * u;
-	auto viewportV = viewportHeight * (-v);
+	auto viewportU = viewportWidth * _u;
+	auto viewportV = viewportHeight * (-_v);
 
 	// Calculate the horizontal and vertical delta vector from pixel to pixel
-	pixelDeltaU = viewportU / imageWidth;
-	pixelDeltaV = viewportV / imageHeight;
+	_pixelDeltaU = viewportU / imageWidth;
+	_pixelDeltaV = viewportV / _imageHeight;
 
 	// Calculate the location of the upper left pixel
-	auto viewportUpperLeft = center - (focusDist * w) - viewportU / 2 - viewportV / 2;
-	pixel00Loc = viewportUpperLeft + 0.5 * (pixelDeltaU + pixelDeltaV);
+	auto viewportUpperLeft = _center - (focusDist * _w) - viewportU / 2 - viewportV / 2;
+	_pixel00Loc = viewportUpperLeft + 0.5 * (_pixelDeltaU + _pixelDeltaV);
 
 	// Calculate the camera defocus disk basis vectors
 	auto defocusRadius = focusDist * std::tan(DegreesToRadians(defocusAngle / 2));
-	defocusDiskU = u * defocusRadius;
-	defocusDiskV = v * defocusRadius;
+	_defocusDiskU = _u * defocusRadius;
+	_defocusDiskV = _v * defocusRadius;
 }
 
 Ray Camera::GetRay(int i, int j) const {
@@ -258,12 +296,13 @@ Ray Camera::GetRay(int i, int j) const {
 	// sample point around the pixel location i, j
 
 	auto offset = SampleSquare();
-	auto pixelSample = pixel00Loc + ((i + offset.X()) * pixelDeltaU) + ((j + offset.Y()) * pixelDeltaV);
+	auto pixelSample = _pixel00Loc + ((i + offset.X()) * _pixelDeltaU) + ((j + offset.Y()) * _pixelDeltaV);
 
-	auto rayOrigin = (defocusAngle <= 0) ? center : DefocusDiskSample();
+	auto rayOrigin = (defocusAngle <= 0) ? _center : DefocusDiskSample();
 	auto rayDirection = pixelSample - rayOrigin;
+	auto rayTime = RandomDouble();
 
-	return Ray(rayOrigin, rayDirection);
+	return Ray(rayOrigin, rayDirection, rayTime);
 }
 
 Vec3 Camera::SampleSquare() const {
@@ -273,7 +312,7 @@ Vec3 Camera::SampleSquare() const {
 Point3 Camera::DefocusDiskSample() const {
 	// Returns a random point in the camera defocus disk
 	auto p = RandomInUnitDisk();
-	return center + (p[0] * defocusDiskU) + (p[1] * defocusDiskV);
+	return _center + (p[0] * _defocusDiskU) + (p[1] * _defocusDiskV);
 }
 
 Color Camera::RayColor(Ray const& r, int depth, Hittable const& world) const {
@@ -282,15 +321,21 @@ Color Camera::RayColor(Ray const& r, int depth, Hittable const& world) const {
 	}
 
 	HitRecord rec = {};
-	if (world.Hit(r, Interval(0.001, infinity), rec)) {
-		Ray scattered = {};
-		Color attenuation = {};
-		if (rec.mat->Scatter(r, rec, attenuation, scattered)) {
-			return attenuation * RayColor(scattered, depth - 1, world);
-		}
+	
+	// If the ray hits nothing, return the background color
+	if (!world.Hit(r, Interval(0.001, infinity), rec)) {
+		return background;
 	}
+	
+	Ray scattered = {};
+	Color attenuation = {};
+	Color colorFromEmission = rec.mat->Emitted(rec.u, rec.v, rec.p);
+	
+	if (!rec.mat->Scatter(r, rec, attenuation, scattered)) {
+		return colorFromEmission;
+	}
+	
+	Color colorFromScatter = attenuation * RayColor(scattered, depth - 1, world);
 
-	Vec3 unitDirection = UnitVector(r.Direction());
-	auto a = 0.5 * (unitDirection.Y() + 1.0);
-	return (1.0 - a) * Color(1.0, 1.0, 1.0) + a * Color(0.5, 0.7, 0.8);
+	return colorFromEmission + colorFromScatter;
 }

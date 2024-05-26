@@ -4,6 +4,12 @@ Interval::Interval() : min(-infinity), max(+infinity) {}
 
 Interval::Interval(double min, double max) : min(min), max(max) {}
 
+Interval::Interval(Interval const& a, Interval const& b) {
+	// Create the interval tightly enclosing the two input intervals
+	min = a.min <= b.min ? a.min : b.min;
+	max = a.max >= b.max ? a.max : b.max;
+}
+
 double Interval::Size() const {
 	return max - min;
 }
@@ -28,5 +34,18 @@ double Interval::Clamp(double x) const {
 	return x;
 }
 
+Interval Interval::Expand(double delta) const {
+	auto padding = delta / 2;
+	return Interval(min - padding, max + padding);
+}
+
 Interval const Interval::empty = Interval(+infinity, -infinity);
 Interval const Interval::universe = Interval(-infinity, +infinity);
+
+Interval operator+(Interval const& iVal, double displacement) {
+	return Interval(iVal.min + displacement, iVal.max + displacement);
+}
+
+Interval operator+(double displacement, Interval const& iVal) {
+	return iVal + displacement;
+}
