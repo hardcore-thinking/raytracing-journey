@@ -62,8 +62,6 @@ class DiffuseLight : public Material {
 
 class Isotropic : public Material {
 	public:
-
-	private:
 		Isotropic(Color const& albedo);
 		Isotropic(std::shared_ptr<Texture> tex);
 

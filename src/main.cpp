@@ -11,6 +11,7 @@
 #include "BVH.hpp"
 #include "Texture.hpp"
 #include "Quad.hpp"
+#include "ConstantMedium.hpp"
 
 void BouncingSperes(Camera& cam) {
 	// World
@@ -156,9 +157,41 @@ void CornellBox(Camera& cam) {
 	world.Add(box1);
 
 	std::shared_ptr<Hittable> box2 = Box(Point3(0, 0, 0), Point3(165, 165, 165), white);
-	box2 = std::make_shared<RotateY>(box2, -10);
+	box2 = std::make_shared<RotateY>(box2, -18);
 	box2 = std::make_shared<Translate>(box2, Vec3(130, 0, 65));
 	world.Add(box2);
+
+	cam.Render(world);
+}
+
+void CornellSmoke(Camera& cam) {
+	HittableList world;
+
+	auto red = std::make_shared<Lambertian>(Color(0.65, 0.05, 0.05));
+	auto white = std::make_shared<Lambertian>(Color(0.73, 0.73, 0.73));
+	auto green = std::make_shared<Lambertian>(Color(0.12, 0.45, 0.15));
+	auto light = std::make_shared<DiffuseLight>(Color(7, 7, 7));
+
+	world.Add(std::make_shared<Quad>(Point3(555,   0,   0), Vec3(  0, 555, 0), Vec3(0,   0, 555), green));      // left
+	world.Add(std::make_shared<Quad>(Point3(  0,   0,   0), Vec3(  0, 555, 0), Vec3(0,   0, 555), red));        // right
+	world.Add(std::make_shared<Quad>(Point3(113, 554, 127), Vec3(330,   0, 0), Vec3(0,   0, 305), light));      // light
+	world.Add(std::make_shared<Quad>(Point3(  0, 555,   0), Vec3(555,   0, 0), Vec3(0,   0, 555), white));      // bottom
+	world.Add(std::make_shared<Quad>(Point3(  0,   0,   0), Vec3(555,   0, 0), Vec3(0,   0, 555), white));      // top
+	world.Add(std::make_shared<Quad>(Point3(  0,   0, 555), Vec3(555,   0, 0), Vec3(0, 555,   0), white));      // back
+	world.Add(std::make_shared<Quad>(Point3(  0,   0,   0), Vec3(555,   0, 0), Vec3(0, 555,   0), white, true)); // front
+
+	std::shared_ptr<Hittable> box1 = Box(Point3(0, 0, 0), Point3(165, 330, 165), white);
+	box1 = std::make_shared<RotateY>(box1, 15);
+	box1 = std::make_shared<Translate>(box1, Vec3(265, 0, 295));
+
+	std::shared_ptr<Hittable> box2 = Box(Point3(0, 0, 0), Point3(165, 165, 165), white);
+	box2 = std::make_shared<RotateY>(box2, -18);
+	box2 = std::make_shared<Translate>(box2, Vec3(130, 0, 65));
+
+	std::shared_ptr<Hittable> box3 = Box(Point3(0, 0, 0), Point3(555, 555, 555), white);
+
+	world.Add(std::make_shared<ConstantMedium>(box1, 0.01, Color(0, 0, 0)));
+	world.Add(std::make_shared<ConstantMedium>(box2, 0.01, Color(1, 1, 1)));
 
 	cam.Render(world);
 }
@@ -169,7 +202,7 @@ int main() {
 	cam.aspectRatio = 1.0;
 	cam.imageWidth = 400;
 	cam.samplesPerPixel = 128;
-	cam.maxDepth = 256;
+	cam.maxDepth = 16;
 
 	cam.vFOV = 40;
 	cam.lookFrom = Point3(278, 278, -800);
@@ -179,7 +212,7 @@ int main() {
 
 	cam.defocusAngle = 0;
 
-	int select = 7;
+	int select = 8;
 
 	switch (select) {
 		case 1:
@@ -208,6 +241,10 @@ int main() {
 
 		case 7:
 			CornellBox(cam);
+			break;
+
+		case 8:
+			CornellSmoke(cam);
 			break;
 
 		default:

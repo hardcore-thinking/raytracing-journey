@@ -67,5 +67,5 @@ bool ConstantMedium::Hit(Ray const& r, Interval rayT, HitRecord& rec) const {
 }
 
 AABB ConstantMedium::BoundingBox() const {
-
+	return _boundary->BoundingBox();
 }
