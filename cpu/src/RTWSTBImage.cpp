@@ -34,27 +34,27 @@ RTWImage::RTWImage(std::string const& imageFilename) {
 		return;
 	}
 	
-	if (Load("../images" + imageFilename)) {
+	if (Load("../images/" + imageFilename)) {
 		return;
 	}
 
-	if (Load("../../images" + imageFilename)) {
+	if (Load("../../images/" + imageFilename)) {
 		return;
 	}
 
-	if (Load("../../../images" + imageFilename)) {
+	if (Load("../../../images/" + imageFilename)) {
 		return;
 	}
 
-	if (Load("../../../../images" + imageFilename)) {
+	if (Load("../../../../images/" + imageFilename)) {
 		return;
 	}
 
-	if (Load("../../../../../images" + imageFilename)) {
+	if (Load("../../../../../images/" + imageFilename)) {
 		return;
 	}
 
-	if (Load("../../../../../../images" + imageFilename)) {
+	if (Load("../../../../../../images/" + imageFilename)) {
 		return;
 	}
 
