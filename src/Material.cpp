@@ -72,3 +72,13 @@ DiffuseLight::DiffuseLight(Color const& emit) : _tex(std::make_shared<SolidColor
 Color DiffuseLight::Emitted(double u, double v, Point3 const& p) const {
 	return _tex->Value(u, v, p);
 }
+
+Isotropic::Isotropic(Color const& albedo) : _tex(std::make_shared<SolidColor>(albedo)) {}
+
+Isotropic::Isotropic(std::shared_ptr<Texture> tex) : _tex(tex) {}
+
+bool Isotropic::Scatter(Ray const& rIn, HitRecord const& rec, Color& attenuation, Ray& scattered) const {
+	scattered = Ray(rec.p, RandomUnitVector(), rIn.Time());
+	attenuation = _tex->Value(rec.u, rec.v, rec.p);
+	return true;
+}

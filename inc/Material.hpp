@@ -60,4 +60,17 @@ class DiffuseLight : public Material {
 		std::shared_ptr<Texture> _tex = nullptr;
 };
 
+class Isotropic : public Material {
+	public:
+
+	private:
+		Isotropic(Color const& albedo);
+		Isotropic(std::shared_ptr<Texture> tex);
+
+		bool Scatter(Ray const& rIn, HitRecord const& rec, Color& attenuation, Ray& scattered) const override;
+
+	private:
+		std::shared_ptr<Texture> _tex = nullptr;
+};
+
 #endif // MAATERIAL_HPP
