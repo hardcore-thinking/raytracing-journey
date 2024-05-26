@@ -264,7 +264,7 @@ int main() {
 
 	cam.aspectRatio = 1.0;
 	cam.imageWidth = 800;
-	cam.samplesPerPixel = 10000;
+	cam.samplesPerPixel = 40;
 	cam.maxDepth = 40;
 
 	cam.vFOV = 40;
