@@ -128,13 +128,14 @@ void Camera::Render(Hittable const& world) {
 	}
 
 #elif RT_COMPUTE == RT_COMPUTE_USING_THREADPOOL
-	size_t numberOfThreads = std::thread::hardware_concurrency();
+	//size_t numberOfThreads = std::thread::hardware_concurrency();
+	size_t numberOfThreads = 10;
 	numberOfThreads = 2 * numberOfThreads + 1;
 	ThreadPool threadPool(numberOfThreads);
 
 	std::clog << " in a thread pool using " << numberOfThreads << " threads..." << std::endl;
 
-	size_t numberOfTasks = 5 * numberOfThreads;
+	size_t numberOfTasks = 4 * numberOfThreads;
 
 	std::vector<std::promise<void>> promises;
 	promises.resize(numberOfTasks);

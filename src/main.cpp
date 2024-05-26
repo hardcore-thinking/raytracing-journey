@@ -171,48 +171,111 @@ void CornellSmoke(Camera& cam) {
 	auto white = std::make_shared<Lambertian>(Color(0.73, 0.73, 0.73));
 	auto green = std::make_shared<Lambertian>(Color(0.12, 0.45, 0.15));
 	auto light = std::make_shared<DiffuseLight>(Color(7, 7, 7));
+	// auto diel = std::make_shared<Dielectric>(0);
 
-	world.Add(std::make_shared<Quad>(Point3(555,   0,   0), Vec3(  0, 555, 0), Vec3(0,   0, 555), green));      // left
-	world.Add(std::make_shared<Quad>(Point3(  0,   0,   0), Vec3(  0, 555, 0), Vec3(0,   0, 555), red));        // right
-	world.Add(std::make_shared<Quad>(Point3(113, 554, 127), Vec3(330,   0, 0), Vec3(0,   0, 305), light));      // light
-	world.Add(std::make_shared<Quad>(Point3(  0, 555,   0), Vec3(555,   0, 0), Vec3(0,   0, 555), white));      // bottom
-	world.Add(std::make_shared<Quad>(Point3(  0,   0,   0), Vec3(555,   0, 0), Vec3(0,   0, 555), white));      // top
-	world.Add(std::make_shared<Quad>(Point3(  0,   0, 555), Vec3(555,   0, 0), Vec3(0, 555,   0), white));      // back
-	world.Add(std::make_shared<Quad>(Point3(  0,   0,   0), Vec3(555,   0, 0), Vec3(0, 555,   0), white, true)); // front
+	world.Add(std::make_shared<Quad>(Point3(555, 0, 0), Vec3(0, 555, 0), Vec3(0, 0, 555), green));      // left
+	world.Add(std::make_shared<Quad>(Point3(0, 0, 0), Vec3(0, 555, 0), Vec3(0, 0, 555), red));        // right
+	world.Add(std::make_shared<Quad>(Point3(113, 554, 127), Vec3(330, 0, 0), Vec3(0, 0, 305), light));      // light
+	world.Add(std::make_shared<Quad>(Point3(0, 555, 0), Vec3(555, 0, 0), Vec3(0, 0, 555), white));      // bottom
+	world.Add(std::make_shared<Quad>(Point3(0, 0, 0), Vec3(555, 0, 0), Vec3(0, 0, 555), white));      // top
+	world.Add(std::make_shared<Quad>(Point3(0, 0, 555), Vec3(555, 0, 0), Vec3(0, 555, 0), white));      // back
+	world.Add(std::make_shared<Quad>(Point3(0, 0, 0), Vec3(555, 0, 0), Vec3(0, 555, 0), white, true)); // front
 
-	std::shared_ptr<Hittable> box1 = Box(Point3(0, 0, 0), Point3(165, 330, 165), white);
+	// std::shared_ptr<Hittable> box1 = Box(Point3(0, 0, 0), Point3(165, 330, 165), white);
+	std::shared_ptr<Hittable> box1 = Box(Point3(0, 0, 0), Point3(165, 330, 165), std::make_shared<Lambertian>(std::make_shared<NoiseTexture>(0.3)));
 	box1 = std::make_shared<RotateY>(box1, 15);
 	box1 = std::make_shared<Translate>(box1, Vec3(265, 0, 295));
 
-	std::shared_ptr<Hittable> box2 = Box(Point3(0, 0, 0), Point3(165, 165, 165), white);
+	// std::shared_ptr<Hittable> box2 = Box(Point3(0, 0, 0), Point3(165, 165, 165), white);
+	std::shared_ptr<Hittable> box2 = Box(Point3(0, 0, 0), Point3(165, 165, 165), std::make_shared<Lambertian>(std::make_shared<NoiseTexture>(0.3)));
 	box2 = std::make_shared<RotateY>(box2, -18);
 	box2 = std::make_shared<Translate>(box2, Vec3(130, 0, 65));
 
 	std::shared_ptr<Hittable> box3 = Box(Point3(0, 0, 0), Point3(555, 555, 555), white);
 
-	world.Add(std::make_shared<ConstantMedium>(box1, 0.01, Color(0, 0, 0)));
-	world.Add(std::make_shared<ConstantMedium>(box2, 0.01, Color(1, 1, 1)));
+	// world.Add(std::make_shared<ConstantMedium>(box1, 0.01, Color(0, 0, 0)));
+	// world.Add(std::make_shared<ConstantMedium>(box2, 0.01, Color(1, 1, 1)));
+	world.Add(box1);
+	world.Add(box2);
+	// world.Add(std::make_shared<ConstantMedium>(box3, 0.0007, Color(0.8, 0.8, 0.8)));
+
+	cam.Render(world);
+}
+
+void FinalScene(Camera& cam) {
+	HittableList boxes1 = {};
+	auto ground = std::make_shared<Lambertian>(Color(0.48, 0.83, 0.53));
+
+	int boxesPerSide = 20;
+	for (int i = 0; i < boxesPerSide; i++) {
+		for (int j = 0; j < boxesPerSide; j++) {
+			auto w = 100.0;
+			auto x0 = -1000.0 + i * w;
+			auto z0 = -1000.0 + j * w;
+			auto y0 = 0.0;
+			auto x1 = x0 + w;
+			auto y1 = RandomDouble(1, 101);
+			auto z1 = z0 + w;
+
+			boxes1.Add(Box(Point3(x0, y0, z0), Point3(x1, y1, z1), ground));
+		}
+	}
+
+	HittableList world = {};
+
+	world.Add(std::make_shared<BVHNode>(boxes1));
+
+	auto light = std::make_shared<DiffuseLight>(Color(7, 7, 7));
+	world.Add(std::make_shared<Quad>(Point3(123, 554, 147), Vec3(300, 0, 0), Vec3(0, 0, 265), light));
+
+	auto center1 = Point3(400, 400, 200);
+	auto center2 = center1 + Vec3(30, 0, 0);
+	auto sphereMaterial = std::make_shared<Lambertian>(Color(0.7, 0.3, 0.1));
+	world.Add(std::make_shared<Sphere>(center1, center2, 50, sphereMaterial));
+
+	world.Add(std::make_shared<Sphere>(Point3(260, 150, 45), 50, std::make_shared<Dielectric>(1.5)));
+	world.Add(std::make_shared<Sphere>(Point3(0, 150, 145), 50, std::make_shared<Metal>(Color(0.8, 0.8, 0.9), 1.0)));
+
+	auto boundary = std::make_shared<Sphere>(Point3(360, 150, 145), 70, std::make_shared<Dielectric>(1.5));
+	world.Add(boundary);
+	world.Add(std::make_shared<ConstantMedium>(boundary, 0.2, Color(0.2, 0.4, 0.9)));
+	boundary = std::make_shared<Sphere>(Point3(0, 0, 0), 5000, std::make_shared<Dielectric>(1.5));
+	world.Add(std::make_shared<ConstantMedium>(boundary, 0.0001, Color(1, 1, 1)));
+
+	auto emat = std::make_shared<Lambertian>(std::make_shared<ImageTexture>("earthmap.jpg"));
+	world.Add(std::make_shared<Sphere>(Point3(400, 200, 400), 100, emat));
+	auto pertext = std::make_shared<NoiseTexture>(0.2);
+	world.Add(std::make_shared<Sphere>(Point3(220, 280, 300), 80, std::make_shared<Lambertian>(pertext)));
+
+	HittableList boxes2 = {};
+	auto white = std::make_shared<Lambertian>(Color(0.73, 0.73, 0.73));
+	int ns = 1000;
+	for (int j = 0; j < ns; j++) {
+		boxes2.Add(std::make_shared<Sphere>(Point3::Random(0, 165), 10, white));
+	}
+
+	world.Add(std::make_shared<Translate>(std::make_shared<RotateY>(std::make_shared<BVHNode>(boxes2), 15), Vec3(-100, 270, 395)));
 
 	cam.Render(world);
 }
 
 int main() {
-	Camera cam;
+	Camera cam = {};
 
 	cam.aspectRatio = 1.0;
-	cam.imageWidth = 400;
-	cam.samplesPerPixel = 128;
-	cam.maxDepth = 16;
+	cam.imageWidth = 800;
+	cam.samplesPerPixel = 10000;
+	cam.maxDepth = 40;
 
 	cam.vFOV = 40;
-	cam.lookFrom = Point3(278, 278, -800);
+	cam.lookFrom = Point3(478, 278, -600);
 	cam.lookAt = Point3(278, 278, 0);
 	cam.vUp = Vec3(0, 1, 0);
 	cam.background = Color(0, 0, 0);
 
 	cam.defocusAngle = 0;
 
-	int select = 8;
+	int select = 9;
 
 	switch (select) {
 		case 1:
@@ -245,6 +308,10 @@ int main() {
 
 		case 8:
 			CornellSmoke(cam);
+			break;
+
+		case 9:
+			FinalScene(cam);
 			break;
 
 		default:
