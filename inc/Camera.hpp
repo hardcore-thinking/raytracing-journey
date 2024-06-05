@@ -14,11 +14,12 @@
 
 class Camera {
 	public:
-		double aspectRatio  = 1.0; // Ratio of image width over height
-		int imageWidth      = 100; // Rendered image width in pixel count
-		int samplesPerPixel = 10;  // Count of random samples for each pixel
-		int maxDepth        = 10;  // Maximum number of ray bounces into scene
-		Color background    = {};  // Scene background color
+		double aspectRatio     = 1.0;              // Ratio of image width over height
+		int imageWidth         = 100;              // Rendered image width in pixel count
+		int samplesPerPixel    = 10;               // Count of random samples for each pixel
+		int maxDepth           = 10;               // Maximum number of ray bounces into scene
+		Color background       = {0.0, 0.0, 0.0};  // Scene background color
+		std::string outputFile = "image.ppm";      // Name of the output file
 
 		double vFOV     = 90;              // Vertical view angle (field of view)
 		Point3 lookFrom = Point3(0, 0, 0); // Point camera is looking from

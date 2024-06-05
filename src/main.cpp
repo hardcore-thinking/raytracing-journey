@@ -64,9 +64,15 @@ void BouncingSperes(Camera& cam) {
 
 	world = HittableList(std::make_shared<BVHNode>(world));
 
-	cam.Render(world);
+	cam.vFOV = 20;
+	cam.lookFrom = Point3(13, 2, 3);
+	cam.lookAt = Point3(0, 0, 0);
+	cam.vUp = Vec3(0, 1, 0);
+	cam.background = Color(0.70, 0.80, 1.00);
 
-	std::clog << '\a';
+	cam.outputFile = "bouncing_spheres.ppm";
+	
+	cam.Render(world);
 }
 
 void CheckeredSpheres(Camera& cam) {
@@ -77,6 +83,14 @@ void CheckeredSpheres(Camera& cam) {
 	world.Add(std::make_shared<Sphere>(Point3(0, -10, 0), 10, std::make_shared<Lambertian>(checker)));
 	world.Add(std::make_shared<Sphere>(Point3(0,  10, 0), 10, std::make_shared<Lambertian>(checker)));
 	
+	cam.vFOV = 20;
+	cam.lookFrom = Point3(13, 2, 3);
+	cam.lookAt = Point3(0, 0, 0);
+	cam.vUp = Vec3(0, 1, 0);
+	cam.background = Color(0.70, 0.80, 1.00);
+
+	cam.outputFile = "checkered_spheres.ppm";
+
 	cam.Render(world);
 }
 
@@ -84,6 +98,14 @@ void Earth(Camera& cam) {
 	auto earthTexture = std::make_shared<ImageTexture>("earthmap.jpg");
 	auto earthSurface = std::make_shared<Lambertian>(earthTexture);
 	auto globe = std::make_shared<Sphere>(Point3(0, 0, 0), 2, earthSurface);
+
+	cam.vFOV = 20;
+	cam.lookFrom = Point3(0, 0, 12);
+	cam.lookAt = Point3(0, 0, 0);
+	cam.vUp = Vec3(0, 1, 0);
+	cam.background = Color(0.70, 0.80, 1.00);
+
+	cam.outputFile = "earth.ppm";
 
 	cam.Render(HittableList(globe));
 }
@@ -94,6 +116,14 @@ void PerlinSpheres(Camera& cam) {
 	auto pertext = std::make_shared<NoiseTexture>(2);
 	world.Add(std::make_shared<Sphere>(Point3(0, -1000, 0), 1000, std::make_shared<Lambertian>(pertext)));
 	world.Add(std::make_shared<Sphere>(Point3(0, 2, 0), 2, std::make_shared<Lambertian>(pertext)));
+
+	cam.vFOV = 20;
+	cam.lookFrom = Point3(13, 2, 3);
+	cam.lookAt = Point3(0, 0, 0);
+	cam.vUp = Vec3(0, 1, 0);
+	cam.background = Color(0.70, 0.80, 1.00);
+
+	cam.outputFile = "perlin_spheres.ppm";
 
 	cam.Render(world);
 }
@@ -115,6 +145,14 @@ void Quads(Camera& cam) {
 	world.Add(std::make_shared<Quad>(Point3(-2,  3,  1), Vec3(4,  0,  0), Vec3(0,  0,  4), upperOrange));
 	world.Add(std::make_shared<Quad>(Point3(-2, -3,  5), Vec3(4,  0,  0), Vec3(0,  0, -4), lowerTeal));
 
+	cam.vFOV = 80;
+	cam.lookFrom = Point3(0, 0, 9);
+	cam.lookAt = Point3(0, 0, 0);
+	cam.vUp = Vec3(0, 1, 0);
+	cam.background = Color(0.70, 0.80, 1.00);
+
+	cam.outputFile = "quads.ppm";
+
 	cam.Render(world);
 }
 
@@ -128,6 +166,14 @@ void SimpleLight(Camera& cam) {
 	auto diffLight = std::make_shared<DiffuseLight>(Color(4, 4, 4));
 	world.Add(std::make_shared<Sphere>(Point3(0, 7, 0), 2, diffLight));
 	world.Add(std::make_shared<Quad>(Point3(3, 1, -2), Vec3(2, 0, 0), Vec3(0, 2, 0), diffLight));
+
+	cam.vFOV = 20;
+	cam.lookFrom = Point3(26, 3, 6);
+	cam.lookAt = Point3(0, 2, 0);
+	cam.vUp = Vec3(0, 1, 0);
+	cam.background = Color(0.0, 0.0, 0.0);
+
+	cam.outputFile = "simple_light.ppm";
 
 	cam.Render(world);
 }
@@ -160,6 +206,13 @@ void CornellBox(Camera& cam) {
 	box2 = std::make_shared<RotateY>(box2, -18);
 	box2 = std::make_shared<Translate>(box2, Vec3(130, 0, 65));
 	world.Add(box2);
+
+	cam.vFOV = 40;
+	cam.lookFrom = Point3(278, 278, -800);
+	cam.lookAt = Point3(278, 278, 0);
+	cam.vUp = Vec3(0, 1, 0);
+
+	cam.outputFile = "cornell_box.ppm";
 
 	cam.Render(world);
 }
@@ -198,6 +251,13 @@ void CornellSmoke(Camera& cam) {
 	world.Add(box1);
 	world.Add(box2);
 	// world.Add(std::make_shared<ConstantMedium>(box3, 0.0007, Color(0.8, 0.8, 0.8)));
+
+	cam.vFOV = 40;
+	cam.lookFrom = Point3(278, 278, -800);
+	cam.lookAt = Point3(278, 278, 0);
+	cam.vUp = Vec3(0, 1, 0);
+
+	cam.outputFile = "cornell_smoke.ppm";
 
 	cam.Render(world);
 }
@@ -256,32 +316,32 @@ void FinalScene(Camera& cam) {
 
 	world.Add(std::make_shared<Translate>(std::make_shared<RotateY>(std::make_shared<BVHNode>(boxes2), 15), Vec3(-100, 270, 395)));
 
+	cam.vFOV = 40;
+	cam.lookFrom = Point3(478, 278, -600);
+	cam.lookAt = Point3(278, 278, 0);
+	cam.vUp = Vec3(0, 1, 0);
+
+	cam.outputFile = "final_scene.ppm";
+
 	cam.Render(world);
 }
 
 int main() {
 	Camera cam = {};
 
-	cam.aspectRatio = 1.0;
+	cam.aspectRatio = 16.0 / 9.0;
 	cam.imageWidth = 800;
-	cam.samplesPerPixel = 40;
-	cam.maxDepth = 40;
-
-	cam.vFOV = 40;
-	cam.lookFrom = Point3(478, 278, -600);
-	cam.lookAt = Point3(278, 278, 0);
-	cam.vUp = Vec3(0, 1, 0);
-	cam.background = Color(0, 0, 0);
+	cam.samplesPerPixel = 256;
+	cam.maxDepth = 256;
 
 	cam.defocusAngle = 0;
 
-	int select = 9;
-
-	switch (select) {
+	for (int i = 1; i <= 9; i++) {
+		switch (i) {
 		case 1:
 			BouncingSperes(cam);
 			break;
-	
+
 		case 2:
 			CheckeredSpheres(cam);
 			break;
@@ -293,7 +353,7 @@ int main() {
 		case 4:
 			PerlinSpheres(cam);
 			break;
-			
+
 		case 5:
 			Quads(cam);
 			break;
@@ -316,5 +376,6 @@ int main() {
 
 		default:
 			break;
+		}
 	}
 }
