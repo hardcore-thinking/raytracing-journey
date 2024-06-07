@@ -130,7 +130,10 @@ void Camera::Render(Hittable const& world) {
 
 #elif RT_COMPUTE == RT_COMPUTE_USING_THREADPOOL
 	size_t numberOfThreads = std::thread::hardware_concurrency();
+<<<<<<< HEAD:cpu/src/Camera.cpp
 	//size_t numberOfThreads = 10;
+=======
+>>>>>>> 2fdb54d653ac5de407a0ae4a81f934ed94e7c8b7:src/Camera.cpp
 	ThreadPool threadPool(numberOfThreads);
 
 	std::clog << " in a thread pool using " << numberOfThreads << " threads..." << std::endl;
@@ -213,11 +216,11 @@ void Camera::Render(Hittable const& world) {
 
 #if RT_OUTPUT_IMAGE == RT_OUTPUT_IMAGE_BINARY || not defined RT_OUTPUT_IMAGE
 	std::cout << " > Creating a binary PPM file (P6)..." << std::endl;
-	std::ofstream imageFile("./image.ppm", std::ios::beg | std::ios::binary);
+	std::ofstream imageFile(outputFile, std::ios::beg | std::ios::binary);
 	
 #else
 	std::cout << " > Creating a plain ASCII PPM file (P3)..." << std::endl;
-	std::ofstream imageFile("./image.ppm", std::ios::beg);
+	std::ofstream imageFile(outputFile, std::ios::beg);
 
 #endif
 
@@ -227,7 +230,7 @@ void Camera::Render(Hittable const& world) {
 	}
 
 	std::clog << " > File opened or created successfully." << std::endl;
-	std::clog << " > Writing results to image file..." << std::endl;
+	std::clog << " > Writing results to image file (" << outputFile << ")..." << std::endl;
 
 #if RT_OUTPUT_IMAGE == RT_OUTPUT_IMAGE_BINARY || not defined RT_OUTPUT_IMAGE
 	imageFile << "P6\n" << imageWidth << ' ' << _imageHeight << "\n255\n";
