@@ -20,6 +20,9 @@ void BouncingSperes(Camera& cam) {
 	auto groundMaterial = std::make_shared<Lambertian>(Color(0.5, 0.5, 0.5));
 	world.Add(std::make_shared<Sphere>(Point3(0, -1000, 0), 1000, groundMaterial));
 
+	auto light = std::make_shared<DiffuseLight>(Color(1, 1, 1));
+	world.Add(std::make_shared<Sphere>(Point3(0, 30, 0), 20, light));
+
 	for (int a = -11; a < 11; a++) {
 		for (int b = -11; b < 11; b++) {
 			auto chooseMat = RandomDouble();
@@ -331,51 +334,53 @@ int main() {
 
 	cam.aspectRatio = 16.0 / 9.0;
 	cam.imageWidth = 800;
-	cam.samplesPerPixel = 256;
-	cam.maxDepth = 256;
+	cam.samplesPerPixel = 2048;
+	cam.maxDepth = 1024;
+	//cam.background = Color(0, 0, 0);
 
 	cam.defocusAngle = 0;
 
+
 	for (int i = 1; i <= 9; i++) {
 		switch (i) {
-		case 1:
-			BouncingSperes(cam);
-			break;
+			case 1:
+				BouncingSperes(cam);
+				break;
 
-		case 2:
-			CheckeredSpheres(cam);
-			break;
+			case 2:
+				CheckeredSpheres(cam);
+				break;
 
-		case 3:
-			Earth(cam);
-			break;
+			case 3:
+				Earth(cam);
+				break;
 
-		case 4:
-			PerlinSpheres(cam);
-			break;
+			case 4:
+				PerlinSpheres(cam);
+				break;
 
-		case 5:
-			Quads(cam);
-			break;
+			case 5:
+				Quads(cam);
+				break;
 
-		case 6:
-			SimpleLight(cam);
-			break;
+			case 6:
+				SimpleLight(cam);
+				break;
 
-		case 7:
-			CornellBox(cam);
-			break;
+			case 7:
+				CornellBox(cam);
+				break;
 
-		case 8:
-			CornellSmoke(cam);
-			break;
+			case 8:
+				CornellSmoke(cam);
+				break;
 
-		case 9:
-			FinalScene(cam);
-			break;
+			case 9:
+				FinalScene(cam);
+				break;
 
-		default:
-			break;
+			default:
+				break;
 		}
 	}
 }
