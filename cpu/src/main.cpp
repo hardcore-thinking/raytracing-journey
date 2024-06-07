@@ -71,12 +71,7 @@ void BouncingSperes(Camera& cam) {
 	cam.lookFrom = Point3(13, 2, 3);
 	cam.lookAt = Point3(0, 0, 0);
 	cam.vUp = Vec3(0, 1, 0);
-<<<<<<< HEAD:cpu/src/main.cpp
-
-	cam.Render(world);
-=======
 	cam.background = Color(0.70, 0.80, 1.00);
->>>>>>> 2fdb54d653ac5de407a0ae4a81f934ed94e7c8b7:src/main.cpp
 
 	cam.outputFile = "bouncing_spheres.ppm";
 	
@@ -339,64 +334,53 @@ int main() {
 
 	cam.aspectRatio = 16.0 / 9.0;
 	cam.imageWidth = 800;
-<<<<<<< HEAD:cpu/src/main.cpp
-	cam.samplesPerPixel = 4;
-	cam.maxDepth = 256;
-
+	cam.samplesPerPixel = 2048;
+	cam.maxDepth = 1024;
 	//cam.background = Color(0, 0, 0);
 
 	cam.defocusAngle = 0;
 
-	int select = 1;
-
-	switch (select) {
-=======
-	cam.samplesPerPixel = 256;
-	cam.maxDepth = 256;
-
-	cam.defocusAngle = 0;
 
 	for (int i = 1; i <= 9; i++) {
 		switch (i) {
->>>>>>> 2fdb54d653ac5de407a0ae4a81f934ed94e7c8b7:src/main.cpp
-		case 1:
-			BouncingSperes(cam);
-			break;
+			case 1:
+				BouncingSperes(cam);
+				break;
 
-		case 2:
-			CheckeredSpheres(cam);
-			break;
+			case 2:
+				CheckeredSpheres(cam);
+				break;
 
-		case 3:
-			Earth(cam);
-			break;
+			case 3:
+				Earth(cam);
+				break;
 
-		case 4:
-			PerlinSpheres(cam);
-			break;
+			case 4:
+				PerlinSpheres(cam);
+				break;
 
-		case 5:
-			Quads(cam);
-			break;
+			case 5:
+				Quads(cam);
+				break;
 
-		case 6:
-			SimpleLight(cam);
-			break;
+			case 6:
+				SimpleLight(cam);
+				break;
 
-		case 7:
-			CornellBox(cam);
-			break;
+			case 7:
+				CornellBox(cam);
+				break;
 
-		case 8:
-			CornellSmoke(cam);
-			break;
+			case 8:
+				CornellSmoke(cam);
+				break;
 
-		case 9:
-			FinalScene(cam);
-			break;
+			case 9:
+				FinalScene(cam);
+				break;
 
-		default:
-			break;
+			default:
+				break;
 		}
 	}
 }

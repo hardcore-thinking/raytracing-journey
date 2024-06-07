@@ -130,10 +130,6 @@ void Camera::Render(Hittable const& world) {
 
 #elif RT_COMPUTE == RT_COMPUTE_USING_THREADPOOL
 	size_t numberOfThreads = std::thread::hardware_concurrency();
-<<<<<<< HEAD:cpu/src/Camera.cpp
-	//size_t numberOfThreads = 10;
-=======
->>>>>>> 2fdb54d653ac5de407a0ae4a81f934ed94e7c8b7:src/Camera.cpp
 	ThreadPool threadPool(numberOfThreads);
 
 	std::clog << " in a thread pool using " << numberOfThreads << " threads..." << std::endl;
