@@ -20,6 +20,9 @@ void BouncingSperes(Camera& cam) {
 	auto groundMaterial = std::make_shared<Lambertian>(Color(0.5, 0.5, 0.5));
 	world.Add(std::make_shared<Sphere>(Point3(0, -1000, 0), 1000, groundMaterial));
 
+	auto light = std::make_shared<DiffuseLight>(Color(1, 1, 1));
+	world.Add(std::make_shared<Sphere>(Point3(0, 30, 0), 20, light));
+
 	for (int a = -11; a < 11; a++) {
 		for (int b = -11; b < 11; b++) {
 			auto chooseMat = RandomDouble();
@@ -63,6 +66,11 @@ void BouncingSperes(Camera& cam) {
 	world.Add(std::make_shared<Sphere>(Point3(4, 1, 0), 1.0, material3));
 
 	world = HittableList(std::make_shared<BVHNode>(world));
+
+	cam.vFOV = 20;
+	cam.lookFrom = Point3(13, 2, 3);
+	cam.lookAt = Point3(0, 0, 0);
+	cam.vUp = Vec3(0, 1, 0);
 
 	cam.Render(world);
 
@@ -262,20 +270,16 @@ void FinalScene(Camera& cam) {
 int main() {
 	Camera cam = {};
 
-	cam.aspectRatio = 1.0;
+	cam.aspectRatio = 16.0 / 9.0;
 	cam.imageWidth = 800;
-	cam.samplesPerPixel = 40;
-	cam.maxDepth = 40;
+	cam.samplesPerPixel = 4;
+	cam.maxDepth = 256;
 
-	cam.vFOV = 40;
-	cam.lookFrom = Point3(478, 278, -600);
-	cam.lookAt = Point3(278, 278, 0);
-	cam.vUp = Vec3(0, 1, 0);
-	cam.background = Color(0, 0, 0);
+	//cam.background = Color(0, 0, 0);
 
 	cam.defocusAngle = 0;
 
-	int select = 9;
+	int select = 1;
 
 	switch (select) {
 		case 1:

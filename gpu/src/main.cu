@@ -1,32 +1,92 @@
 #include <iostream>
+#include <cstdio>
 #include <cstdlib>
 
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 
-__global__ void HelloGPU() {
-	unsigned int tx = threadIdx.x;
-	unsigned int ty = threadIdx.y;
-	unsigned int tz = threadIdx.z;
-
-	unsigned int bix = blockIdx.x;
-	unsigned int biy = blockIdx.y;
-	unsigned int biz = blockIdx.z;
-
-	unsigned int bdx = blockDim.x;
-	unsigned int bdy = blockDim.y;
-	unsigned int bdz = blockDim.z;
-
-	printf("Currently running:\n"
-		   " > threadIdx  = (x: %4u, y: %4u, z: %4u)\n"
-		   " > blockIdx   = (x: %4u, y: %4u, z: %4u)\n"
-		   " > blockDim   = (x: %4u, y: %4u, z: %4u)\n", tx, ty, tz, bix, biy, biz, bdx, bdy, bdz);
+// Single-precision a * x + y
+__global__ void SAXPY(int n, float a, float* x, float* y) {
+	int i = blockIdx.x * blockDim.x + threadIdx.x;
+	
+	if (i < n) {
+		y[i] = a * x[i] + y[i];
+	}
 }
 
 int main() {
-	HelloGPU<<<1, 16>>>();
+	int N = 1 << 20;
 
-	cudaDeviceSynchronize();
+	float* x = (float*) malloc(N * sizeof(float));
+	if (x == nullptr) {
+		std::cerr << "[ERROR] Unable to allocate memory for the x vector on the host memory." << std::endl;
+		goto exit;
+	}
+
+	float* y = (float*) malloc(N * sizeof(float));
+	if (y == nullptr) {
+		std::cerr << "[ERROR] Unable to allocate memory for the y vector on the host memory." << std::endl;
+		goto exit;
+	}
+	
+	float* d_x = nullptr;
+	float* d_y = nullptr;
+
+	if (cudaMalloc(&d_x, N * sizeof(float)) != cudaSuccess) {
+		std::cerr << "[ERROR] Unable to allocate memory for the d_y vector on the device memory." << std::endl;
+		goto exit;
+	}
+
+	if (cudaMalloc(&d_y, N * sizeof(float)) != cudaSuccess) {
+		std::cerr << "[ERROR] Unable to allocate memory for the d_y vector on the device memory." << std::endl;
+		goto exit;
+	}
+
+	for (int i = 0; i < N; i++) {
+		x[i] = 1.0f;
+		y[i] = 2.0f;
+	}
+
+	if (cudaMemcpy(d_x, x, N * sizeof(float), cudaMemcpyHostToDevice) != cudaSuccess) {
+		std::cerr << "[ERROR] Unable to allocate memory for the y vector." << std::endl;
+		goto exit;
+	}
+
+	if (cudaMemcpy(d_y, y, N * sizeof(float), cudaMemcpyHostToDevice) != cudaSuccess) {
+		std::cerr << "[ERROR] Unable to allocate memory for the y vector." << std::endl;
+		goto exit;
+	}
+
+	SAXPY <<<(N + 255) / 256, 256>>> (N, 2.0f, d_x, d_y);
+
+	if (cudaMemcpy(y, d_y, N * sizeof(float), cudaMemcpyDeviceToHost) != cudaSuccess) {
+		std::cerr << "[ERROR] Unable to allocate memory for the y vector." << std::endl;
+		goto exit;
+	}
+
+	float maxError = 0.0f;
+	for (int i = 0; i < N; i++) {
+		maxError = std::max(maxError, std::abs(y[i] - 4.0f));
+	}
+
+	std::cout << "Max error: " << maxError << std::endl;
+
+	exit:
+		if (x != nullptr) {
+			free(x);
+		}
+
+		if (y != nullptr) {
+			free(y);
+		}
+
+		if (d_x != nullptr) {
+			cudaFree(d_x);
+		}
+
+		if (d_y != nullptr) {
+			cudaFree(d_y);
+		}
 
 	return EXIT_SUCCESS;
 }
